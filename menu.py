@@ -47,7 +47,7 @@ frame3 = pygame.image.load("image/frame3.png").convert()
 frame3 = pygame.transform.scale_by(frame3,frame3size)
 frame3.set_colorkey((255, 255, 255))
 frame3.set_alpha(220)
-frame3x,frame3y=650,450
+frame3x,frame3y=600,450
 frame3_rect=frame3.get_rect(topleft=(frame3x, frame3y))
 
 #矢印
@@ -82,8 +82,8 @@ def draw_arrow(x,x2,y,arrow_push1,arrow_rect1,arrow_push2,arrow_rect2):
     value.screen.blit(arrow[a], (x2,y))
 
 #使えないかも下線
-linesize=0.4
-img = pygame.image.load("image/つかえないかも下線.png").convert_alpha()
+linesize=1
+img = pygame.image.load("image/neon_line.png").convert_alpha()
 w, h = img.get_size()
 line = pygame.Surface((w, h), pygame.SRCALPHA)
 
@@ -91,12 +91,12 @@ for y in range(h):
     for x in range(w):
         r, g, b, a = img.get_at((x, y))
         # 白さの平均を計算
-        whiteness = (r + g + b) - 255*2
+        whiteness = (r + g + b)/3
         if whiteness<0:whiteness=0
         # 白いほど透明に（255→0）
         alpha = 255 - int(whiteness)
         if r==0 and g==255:
-            line.set_at((x, y), (255,255,255))
+            line.set_at((x, y), (255,b,255))
         else:
             line.set_at((x, y), (255, 0, 255, alpha))
 line = pygame.transform.scale_by(line,linesize)
@@ -105,7 +105,7 @@ linex,liney=550,620
 #枚数
 maisu=[]
 j=0
-for i in (0,3,5):
+for i in value.handsize_change:
     maisu.append(pygame.image.load(f"image/{i}.png").convert())
     maisu[j] = pygame.transform.scale_by(maisu[j],arrowsize)
     maisu[j].set_colorkey((255, 255, 255))
@@ -133,27 +133,37 @@ for i in range(5):
     deck[i] = pygame.transform.scale_by(deck[i],arrowsize*2)
     deck[i].set_colorkey((255, 255, 255))
 decks_size=5
-deckx=arrowx1+100
+deckx=arrowx1+50
+deckx2=arrowx1+200
 decky=arrowy-10+arrowy_distance*2
 deck_rect=deck[0].get_rect(topleft=(deckx,decky))
+deck_rect2=deck[0].get_rect(topleft=(deckx2,decky))
 #変更デッキ
-change_deckx=[680,760,840,920]
+change_deckx=[630,710,790,870]
+change_deckx2=[x + 150 for x in change_deckx]
 change_decky=460
 change_deck_rect=[]
 for i in range(4):
     change_deck_rect.append(deck[0].get_rect(topleft=(change_deckx[i],change_decky)))
+for i in range(4):
+    change_deck_rect.append(deck[0].get_rect(topleft=(change_deckx2[i],change_decky)))
 change = pygame.image.load("image/change.png").convert()
 change.set_colorkey((255, 255, 255))
 changex=deckx-10
+changex2=deckx2-10
 changey=decky-20
 
 
 deck_push=0
+deck_push2=0
 mouse_check_deck_time=0
-mouse_check_deck=0
+mouse_check_deck_time2=0
+mouse_check_deck2=0
+mouse_check_deck2=0
 mouse_check_change_deck=[0,0,0,0]
 mouse_check_change_deck_time=[0,0,0,0]
 deck_change=False
+deck_change2=False
 
 #ゲームスタート
 gamessize=1.5
@@ -167,7 +177,7 @@ gamesx,gamesy=600,600
 games_rect=games.get_rect(topleft=(gamesx,gamesy))
 
 setumei=[]
-for i in range(3):
+for i in range(4):
     setumei.append(pygame.image.load(f"image/1{i+1}.png").convert())
     setumei[i] = pygame.transform.scale_by(setumei[i],1)
     setumei[i].set_colorkey((255, 255, 255))
@@ -186,7 +196,7 @@ for i in range(3):
 font =pygame.font.SysFont("Meiryo UI", 36)
 
 #文字
-menu_text_list=["ひとりで","ふたりで","ヘルプ"]
+menu_text_list=["ひとりで","ふたりで","ヘルプ","デッキ編成"]
 tab=len(menu_text_list)
 menu_text=[]
 for i in range (len(menu_text_list)):
@@ -194,7 +204,7 @@ for i in range (len(menu_text_list)):
 
 back_text = font.render("戻る", True, (255, 255, 255))
 
-menu2_text_list=["初期手札","先手後手","デッキ","その他の設定"]
+menu2_text_list=["初期手札","先手","デッキ","その他の設定"]
 tab2=len(menu2_text_list)
 menu2_text=[]
 for i in range (len(menu2_text_list)):
@@ -233,7 +243,8 @@ def menu():
     x2=(move_time-moveto1)*move_distance/move_time
     value.screen.blit(pekin3, (x2,0))
     
-    value.screen.blit(frame2, (frame2x,frame2y-x2))
+    if value.play_number<2:
+        value.screen.blit(frame2, (frame2x,frame2y-x2))
 
     #フレーム
     frame_rect=[]
@@ -253,7 +264,7 @@ def menu():
     #もどる
     x,y=backx+frame_move[tab]*frame_move_s,backy
     value.screen.blit(frame, (x,y))
-    value.screen.blit(back_text, (backx+200,backy+15))
+    value.screen.blit(back_text, (backx+150,backy+15))
     frame_rect.append(frame.get_rect(topleft=(x,y)))
     if frame_rect[tab].collidepoint(pygame.mouse.get_pos()):
         if frame_move[tab]<frame_move_max:
@@ -263,20 +274,23 @@ def menu():
             frame_move[tab]-=1
 
     #せってい
-
-    for i in range(len(menu2_text)):
-        value.screen.blit(menu2_text[i], (menu2x,menu2y+menu2y_distance*i-x2))
-    draw_arrow(arrowx1,arrowx2,arrowy-x2,arrow_push1[0],arrow_rect1[0],arrow_push2[0],arrow_rect2[0])
-    draw_arrow(arrowx1,arrowx2,arrowy-x2+arrowy_distance,arrow_push1[1],arrow_rect1[1],arrow_push2[1],arrow_rect2[1])
     
-    value.screen.blit(maisu[value.Startinghandsize], (maisux,maisuy-x2))
-    value.screen.blit(sente[value.firstplayer], (sentex,sentey-x2))
-    value.screen.blit(deck[value.decks], (deckx,decky-x2))
-    if games_rect.collidepoint(pygame.mouse.get_pos()):
-        value.screen.blit(games2, (gamesx,gamesy-x2))
-        value.screen.blit(line, (linex,liney-x2))
-    else:
-        value.screen.blit(games, (gamesx,gamesy-x2))
+    if value.play_number<2:
+
+        for i in range(len(menu2_text)):
+            value.screen.blit(menu2_text[i], (menu2x,menu2y+menu2y_distance*i-x2))
+        draw_arrow(arrowx1,arrowx2,arrowy-x2,arrow_push1[0],arrow_rect1[0],arrow_push2[0],arrow_rect2[0])
+        draw_arrow(arrowx1,arrowx2,arrowy-x2+arrowy_distance,arrow_push1[1],arrow_rect1[1],arrow_push2[1],arrow_rect2[1])
+        
+        value.screen.blit(maisu[value.Startinghandsize], (maisux,maisuy-x2))
+        value.screen.blit(sente[value.firstplayer], (sentex,sentey-x2))
+        value.screen.blit(deck[value.decks], (deckx,decky-x2))
+        value.screen.blit(deck[value.decks], (deckx2,decky-x2))
+        if games_rect.collidepoint(pygame.mouse.get_pos()):
+            value.screen.blit(games2, (gamesx,gamesy-x2))
+        else:
+            value.screen.blit(games, (gamesx,gamesy-x2))
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -286,13 +300,13 @@ def menu():
             for i in range(tab+1):
                 if frame_rect[i].collidepoint(pygame.mouse.get_pos()):
                     match(i):
-                        case 3:
+                        case 4:
                             value.fade_out = True
                             value.nextstep=-1
-                        case (0 | 1 | 2):
+                        case (0 | 1 | 2 | 3):
                             value.menustep=1
                             moveto2=move_time+moveto1
-                            value.play_number=i+1
+                            value.play_number=i
 
 
                             
@@ -342,6 +356,10 @@ def menu2():
     global mouse_check_deck
     global mouse_check_deck_time
     global deck_change
+    global deck_push2
+    global mouse_check_deck2
+    global mouse_check_deck_time2
+    global deck_change2
     global mouse_check_change_deck_time
     global mouse_check_change_deck
     #壁紙
@@ -363,7 +381,8 @@ def menu2():
     
     value.screen.blit(pekin3, (x2,0))
     
-    value.screen.blit(frame2, (frame2x,frame2y-x2))
+    if value.play_number<2:
+        value.screen.blit(frame2, (frame2x,frame2y-x2))
 
     #フレーム
     frame_rect=[]
@@ -376,7 +395,7 @@ def menu2():
         value.screen.blit(frame, (x,y))
         value.screen.blit(menu_text[i], (x+110,y+15))
         frame_rect.append(frame.get_rect(topleft=(x, y)))
-        if value.play_number-1==i:
+        if value.play_number==i:
             if frame_move[i]<frame_move_max:
                 frame_move[i]+=1
         else:
@@ -388,7 +407,7 @@ def menu2():
 
     #戻る
     value.screen.blit(frame, (x,y))
-    value.screen.blit(back_text, (backx+200,backy+15))
+    value.screen.blit(back_text, (backx+150,backy+15))
     frame_rect.append(frame.get_rect(topleft=(x,y)))
     if frame_rect[tab].collidepoint(pygame.mouse.get_pos()):
         if frame_move[tab]<frame_move_max:
@@ -400,42 +419,61 @@ def menu2():
 
 
     #せってい
+    if value.play_number<2:
     
-    for i in range(len(menu2_text)-1):
-        value.screen.blit(menu2_text[i], (menu2x,menu2y+menu2y_distance*i-x2))
-    value.screen.blit(menu2_text[len(menu2_text)-1], (sonotax,menu2y+menu2y_distance*(len(menu2_text)-1)-x2))
-    draw_arrow(arrowx1,arrowx2,arrowy-x2,arrow_push1[0],arrow_rect1[0],arrow_push2[0],arrow_rect2[0])
-    draw_arrow(arrowx1,arrowx2,arrowy-x2+arrowy_distance,arrow_push1[1],arrow_rect1[1],arrow_push2[1],arrow_rect2[1])
-    
-    value.screen.blit(maisu[value.Startinghandsize], (maisux,maisuy-x2))
-    value.screen.blit(sente[value.firstplayer], (sentex,sentey-x2))
+        for i in range(len(menu2_text)-1):
+            value.screen.blit(menu2_text[i], (menu2x,menu2y+menu2y_distance*i-x2))
+        value.screen.blit(menu2_text[len(menu2_text)-1], (sonotax,menu2y+menu2y_distance*(len(menu2_text)-1)-x2))
+        draw_arrow(arrowx1,arrowx2,arrowy-x2,arrow_push1[0],arrow_rect1[0],arrow_push2[0],arrow_rect2[0])
+        draw_arrow(arrowx1,arrowx2,arrowy-x2+arrowy_distance,arrow_push1[1],arrow_rect1[1],arrow_push2[1],arrow_rect2[1])
+        
+        value.screen.blit(maisu[value.Startinghandsize], (maisux,maisuy-x2))
+        value.screen.blit(sente[value.firstplayer], (sentex,sentey-x2))
 
-    if deck_rect.collidepoint(pygame.mouse.get_pos()):
-        if mouse_check_deck==0:
-            mouse_check_deck_time=10
-        mouse_check_deck=1
-        value.screen.blit(change, (changex,changey))
-    else:
-        mouse_check_deck=0
-    
-    value.screen.blit(deck[value.deckcolor[value.decks]], (deckx+math.sin(mouse_check_deck_time*math.pi/2.5)*mouse_check_deck_time/5,decky-x2+(4-abs(2-deck_push)*2)))
-    
-    if deck_change:
-        value.screen.blit(frame3, (frame3x,frame3y))
-        for i in range(4):
-            if change_deck_rect[i].collidepoint(pygame.mouse.get_pos()):
-                if mouse_check_change_deck[i]==0:
-                    mouse_check_change_deck_time[i]=10
-                mouse_check_change_deck[i]=1
-            else:
-                mouse_check_change_deck[i]=0
-            value.screen.blit(deck[value.deckcolor[i]], (change_deckx[i]+math.sin(mouse_check_change_deck_time[i]*math.pi/2.5)*mouse_check_change_deck_time[i]/5,change_decky))
+        if deck_rect.collidepoint(pygame.mouse.get_pos()):
+            if mouse_check_deck==0:
+                mouse_check_deck_time=10
+            mouse_check_deck=1
+            value.screen.blit(change, (changex,changey))
+        else:
+            mouse_check_deck=0
+        
+        if deck_rect2.collidepoint(pygame.mouse.get_pos()):
+            if mouse_check_deck2==0:
+                mouse_check_deck_time2=10
+            mouse_check_deck2=1
+            value.screen.blit(change, (changex2,changey))
+        else:
+            mouse_check_deck2=0
+        
+        value.screen.blit(deck[value.deckcolor[value.decks]], (deckx+math.sin(mouse_check_deck_time*math.pi/2.5)*mouse_check_deck_time/5,decky-x2+(4-abs(2-deck_push)*2)))
+        value.screen.blit(deck[value.deckcolor[value.decks2]], (deckx2+math.sin(mouse_check_deck_time2*math.pi/2.5)*mouse_check_deck_time2/5,decky-x2+(4-abs(2-deck_push2)*2)))
+        
+        if deck_change:
+            value.screen.blit(frame3, (frame3x,frame3y))
+            for i in range(4):
+                if change_deck_rect[i].collidepoint(pygame.mouse.get_pos()):
+                    if mouse_check_change_deck[i]==0:
+                        mouse_check_change_deck_time[i]=10
+                    mouse_check_change_deck[i]=1
+                else:
+                    mouse_check_change_deck[i]=0
+                value.screen.blit(deck[value.deckcolor[i]], (change_deckx[i]+math.sin(mouse_check_change_deck_time[i]*math.pi/2.5)*mouse_check_change_deck_time[i]/5,change_decky))
+        if deck_change2:
+            value.screen.blit(frame3, (frame3x+150,frame3y))
+            for i in range(4):
+                if change_deck_rect[i+4].collidepoint(pygame.mouse.get_pos()):
+                    if mouse_check_change_deck[i]==0:
+                        mouse_check_change_deck_time[i]=10
+                    mouse_check_change_deck[i]=1
+                else:
+                    mouse_check_change_deck[i]=0
+                value.screen.blit(deck[value.deckcolor[i]], (change_deckx2[i]+math.sin(mouse_check_change_deck_time[i]*math.pi/2.5)*mouse_check_change_deck_time[i]/5,change_decky))
 
-    if games_rect.collidepoint(pygame.mouse.get_pos()):
-        value.screen.blit(games2, (gamesx,gamesy-x2))
-        value.screen.blit(line, (linex,liney-x2))
-    else:
-        value.screen.blit(games, (gamesx,gamesy-x2))
+        if games_rect.collidepoint(pygame.mouse.get_pos()):
+            value.screen.blit(games2, (gamesx,gamesy-x2))
+        else:
+            value.screen.blit(games, (gamesx,gamesy-x2))
 
 
 
@@ -450,18 +488,19 @@ def menu2():
                     if change_deck_rect[i].collidepoint(pygame.mouse.get_pos()):
                         value.decks=i
                         deck_change=False
+            elif deck_change2:
+                for i in range(4):
+                    if change_deck_rect[i+4].collidepoint(pygame.mouse.get_pos()):
+                        value.decks2=i
+                        deck_change2=False
             else:
                 for i in range(tab+1):
                     if frame_rect[i].collidepoint(pygame.mouse.get_pos()):
                         match(i):
-                            case 3:
+                            case 4:
                                 value.menustep=0
                                 moveto1=move_time-moveto2
-                            case 0:
-                                pass
-                            case 1:
-                                pass
-                            case 2:
+                            case _:
                                 pass
                 if arrow_rect1[0].collidepoint(pygame.mouse.get_pos()):
                     arrow_push1[0]=5
@@ -485,8 +524,13 @@ def menu2():
                 deck_push=4
                 mouse_check_deck_time=0
                 deck_change=True
+            elif deck_rect2.collidepoint(pygame.mouse.get_pos()):
+                deck_push2=4
+                mouse_check_deck_time2=0
+                deck_change2=True
             elif not frame3_rect.collidepoint(pygame.mouse.get_pos()):
                 deck_change=False
+                deck_change2=False
 
                             
                     
@@ -518,6 +562,7 @@ def menu2():
         if arrow_push2[i]>0:arrow_push2[i]-=1
     if deck_push>0:deck_push-=1
     if mouse_check_deck_time>0:mouse_check_deck_time-=1
+    if mouse_check_deck_time2>0:mouse_check_deck_time2-=1
     for i in range(4):
         if mouse_check_change_deck_time[i]>0:mouse_check_change_deck_time[i]-=1
     

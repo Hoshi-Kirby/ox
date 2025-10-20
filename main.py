@@ -16,5 +16,12 @@ while True:
             menu.menu()
         if value.menustep==1:
             menu.menu2()
+    if value.step==4:
+        value.t=0
+        value.gamestep=0
+        game.handsadd(value.decks,value.handsize_change[value.Startinghandsize])
     while value.step==4:
-        game.game()
+        if value.gamestep==0:
+            game.gameb()
+        if value.gamestep==1:
+            game.game()

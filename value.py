@@ -37,12 +37,20 @@ play_number=0
 Startinghandsize=1
 firstplayer=0
 decks=0
+decks2=0
+handsize_change=[0,3,5]
 
+
+#deck
+deck=[[0]*20,[0]*20,[0]*20,[0]*20]
+deck[0]=[11,11,13,13,23,24,24,25,25,25,25,31,31,32,33,42,42,44,44,45]
+hands=[]
 deckname=[]
 deckcard=[]
 deckcolor=[0,1,3,2]
 
 #game
+gamestep=0
 OFFSET_X = (WINDOW_WIDTH - BOARD_SIZE) // 2
 OFFSET_Y = (WINDOW_HEIGHT - BOARD_SIZE) // 2
 board = [[0 for _ in range(BOARD_COLS)] for _ in range(BOARD_ROWS)]
