@@ -1,5 +1,7 @@
 import pygame
 import sys
+import random
+
 import game
 import value
 import title
@@ -21,6 +23,10 @@ while True:
         value.gamestep=0
         value.hands=[]
         value.hands2=[]
+        if value.firstplayer==0:
+            value.player=random.randint(1,2)
+        else:
+            value.player=value.firstplayer
     while value.step==4:
         if value.gamestep==0:
             game.gameb()

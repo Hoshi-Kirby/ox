@@ -1,8 +1,10 @@
 import pygame
 import sys
+import math
+
 import value
 import random
-import skillcard
+import skillcardfunc
 pygame.init()
 
 #壁紙
@@ -66,10 +68,18 @@ turnend2.set_alpha(220)
 turnend.set_alpha(220)
 turnend_rect=turnend.get_rect(topleft=(turnendx,turnendy))
 
+#のターン
+sturn=pygame.image.load("image/'s turn.png").convert()
+sturn.set_colorkey((255, 255, 255))
+sturny=50
+
 #説明
 detail_image={}
 for i in (11,12,13,21,22,23,24,25,31,32,33,41,42,43,44,45):
     detail_image[i]=pygame.image.load(f"image/detail{i}.png").convert_alpha()
+    detail_image[i].set_colorkey((255, 255, 255))
+detailx=50
+detaily=200
 
 #文字
 ready_text=font.render("Ready?", True, (255, 255, 255))
@@ -90,12 +100,13 @@ for i in (11,12,13,21,22,23,24,25,31,32,33,41,42,43,44,45):
     all_cards_image[i]=pygame.transform.scale_by(all_cards_image[i],2)
 
 spacing = 120  # カード間のスペース
+spacing2 = 120  # カード間のスペース
 width=all_cards_image[11].get_width()
 cardx_move=0
 cardx_move2=0
 card_select=-1
 skillcard=0
-
+hand_max=9
 
 def draw_lines():
     for i in range(1, value.BOARD_ROWS):
@@ -128,9 +139,13 @@ def handsadd(h,n,m):
     if h==1:
         for i in range(len(value.hands)):
             check[value.hands[i]]=1
+        if len(value.hands)>hand_max:
+            m=0
     elif h==2:
         for i in range(len(value.hands2)):
             check[value.hands2[i]]=1   
+        if len(value.hands2)>hand_max:
+            m=0
     for i in range(m):
         if h==1:
             a=random.randint(0,19-len(value.hands))
@@ -148,9 +163,8 @@ def handsadd(h,n,m):
         elif h==2:
             value.hands2.append(addnum)
         
-def detail(x):
-    if x==11:
-        pass
+def detail(x,xx,yy):
+    value.screen.blit(detail_image[x], (xx,yy))
 
         
 
@@ -158,6 +172,8 @@ def gameb():
     global font_size
     global cardx_move
     global cardx_move2
+    global spacing
+    global spacing2
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
     for i in range(value.BOARD_COLS):
@@ -182,6 +198,12 @@ def gameb():
     elif value.t<start_time+start_time2+ready_time+ready_time2:
         start_text = font.render("Start!", True, (255, 160, 160))
         value.screen.blit(start_text, start_text.get_rect(center=(639.5, 400)))
+
+    if value.t<60:
+        value.screen.blit(token[value.player-1], (detailx+math.sin(value.t/10*math.pi)*10,sturny))
+    else:
+        value.screen.blit(token[value.player-1], (detailx,sturny))
+    value.screen.blit(sturn, (detailx+100,sturny))
 
     cardx,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2),630,10
     j=0
@@ -210,7 +232,6 @@ def gameb():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
     
     if value.t>start_time+start_time2+ready_time+ready_time2:
         value.gamestep=1
@@ -256,6 +277,8 @@ def game():
     global card_rect
     global card_select
     global skillcard
+    global spacing
+    global spacing2
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
     for i in range(value.BOARD_COLS):
@@ -266,8 +289,12 @@ def game():
                 case _:
                     pass
     
+    value.screen.blit(token[value.player-1], (detailx,sturny))
+    value.screen.blit(sturn, (detailx+100,sturny))
+
+
     
-    cardx,cardx2,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2), 639.5 - ((spacing * (len(value.hands2) - 1)+width) / 2),630,10
+    cardx,cardx2,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2), 639.5 - ((spacing2 * (len(value.hands2) - 1)+width) / 2),630,10
     j=0
     card_select=-1
     for i in value.hands:
@@ -277,15 +304,17 @@ def game():
         if card_rect.collidepoint(pygame.mouse.get_pos()):
             if value.player==1:
                 card_select=i
-            detail(all_cards_image[value.deck[value.decks][i]])
+            detail(value.deck[value.decks][i],detailx,detaily)
         j+=1
     j=0
     for i in value.hands2:
-        card_rect = all_cards_image[11].get_rect(topleft=(cardx + j * spacing, cardy2))
+        card_rect = all_cards_image[11].get_rect(topleft=(cardx2 + j * spacing2, cardy2))
         y = cardy2 + 10 if card_rect.collidepoint(pygame.mouse.get_pos()) else cardy2
-        value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (cardx2 + j * spacing, y))
-        if value.player==1 and card_rect.collidepoint(pygame.mouse.get_pos()):
-            card_select=i
+        value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (cardx2 + j * spacing2, y))
+        if card_rect.collidepoint(pygame.mouse.get_pos()):
+            if value.player==2:
+                card_select=i
+            detail(value.deck[value.decks2][i],detailx,detaily)
         j+=1
 
     if turnend_rect.collidepoint(pygame.mouse.get_pos()):
@@ -324,6 +353,19 @@ def game():
             #                 value.game_over = True
 
             #             value.player = 2 if value.player == 1 else 1
+    
+    if len(value.hands)<5:
+        spacing=120
+    elif len(value.hands)<8:
+        spacing=80
+    else:
+        spacing=50
+    if len(value.hands2)<5:
+        spacing2=120
+    elif len(value.hands2)<8:
+        spacing2=80
+    else:
+        spacing2=50
                         
     if skillcard>0:
         pass
@@ -357,6 +399,8 @@ def change():
     global font_size
     global cardx_move
     global cardx_move2
+    global spacing
+    global spacing2
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
     for i in range(value.BOARD_COLS):
@@ -368,13 +412,19 @@ def change():
                     pass
     
     #カード
-    cardx,cardx2,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2),639.5 - ((spacing * (len(value.hands2) - 1)+width) / 2),630,10
+    cardx,cardx2,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2),639.5 - ((spacing2 * (len(value.hands2) - 1)+width) / 2),630,10
+
+    if value.t<60:
+        value.screen.blit(token[value.player-1], (detailx+math.sin(value.t/10*math.pi)*10,sturny))
+    else:
+        value.screen.blit(token[value.player-1], (detailx,sturny))
+    value.screen.blit(sturn, (detailx+100,sturny))
 
     j=0
     x = cardx+cardx_move/10 * spacing
     x2 = cardx+cardx_move2/10 * spacing*20
-    x3 = cardx2+cardx_move/10 * spacing
-    x4 = cardx2+cardx_move2/10 * spacing*20
+    x3 = cardx2+cardx_move/10 * spacing2
+    x4 = cardx2+cardx_move2/10 * spacing2*20
     
     for i in value.hands:
         card_rect = all_cards_image[11].get_rect(topleft=(x + j * spacing, cardy))
@@ -389,15 +439,15 @@ def change():
         j+=1
     j=0
     for i in value.hands2:
-        card_rect = all_cards_image[11].get_rect(topleft=(x + j * spacing, cardy2))
+        card_rect = all_cards_image[11].get_rect(topleft=(x + j * spacing2, cardy2))
         y = cardy2 + 10 if card_rect.collidepoint(pygame.mouse.get_pos()) else cardy2
         if value.player==2:
             if j==len(value.hands2):
-                value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (x4 + j * spacing, y))
+                value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (x4 + j * spacing2, y))
             else:
-                value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (x3 + j * spacing, y))
+                value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (x3 + j * spacing2, y))
         else:
-            value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (cardx2 + j * spacing, y))
+            value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (cardx2 + j * spacing2, y))
         j+=1
     
     #ターンエンド
@@ -409,6 +459,18 @@ def change():
             pygame.quit()
             sys.exit()
 
+    if len(value.hands)<5:
+        spacing=120
+    elif len(value.hands)<8:
+        spacing=80
+    else:
+        spacing=50
+    if len(value.hands2)<5:
+        spacing2=120
+    elif len(value.hands2)<8:
+        spacing2=80
+    else:
+        spacing2=50
     
     if value.t>60:
         value.gamestep=1
