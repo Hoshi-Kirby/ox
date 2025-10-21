@@ -19,9 +19,12 @@ while True:
     if value.step==4:
         value.t=0
         value.gamestep=0
-        game.handsadd(value.decks,value.handsize_change[value.Startinghandsize])
+        value.hands=[]
+        value.hands2=[]
     while value.step==4:
         if value.gamestep==0:
             game.gameb()
         if value.gamestep==1:
             game.game()
+        if value.gamestep==2:
+            game.change()
