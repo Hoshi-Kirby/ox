@@ -264,7 +264,7 @@ def menu():
     #もどる
     x,y=backx+frame_move[tab]*frame_move_s,backy
     value.screen.blit(frame, (x,y))
-    value.screen.blit(back_text, (backx+150,backy+15))
+    value.screen.blit(back_text, (backx+200,backy+15))
     frame_rect.append(frame.get_rect(topleft=(x,y)))
     if frame_rect[tab].collidepoint(pygame.mouse.get_pos()):
         if frame_move[tab]<frame_move_max:
@@ -407,7 +407,7 @@ def menu2():
 
     #戻る
     value.screen.blit(frame, (x,y))
-    value.screen.blit(back_text, (backx+150,backy+15))
+    value.screen.blit(back_text, (backx+200,backy+15))
     frame_rect.append(frame.get_rect(topleft=(x,y)))
     if frame_rect[tab].collidepoint(pygame.mouse.get_pos()):
         if frame_move[tab]<frame_move_max:
