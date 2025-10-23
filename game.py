@@ -128,16 +128,17 @@ font_size=60
 ready_time=240
 ready_time2=100
 start_text=font.render("Start!", True, (255, 255, 255))
-start_time=200
-start_time2=100
+start_time=150
+start_time2=50
 
 #text.get_rect(center=(295, 300))
 
 #カード
 all_cards_image={}
+card_size=2
 for i in (11,12,13,21,22,23,24,25,31,32,33,41,42,43,44,45):
     all_cards_image[i]=pygame.image.load(f"image/card{i // 10}-{i % 10}.png").convert()
-    all_cards_image[i]=pygame.transform.scale_by(all_cards_image[i],2)
+    all_cards_image[i]=pygame.transform.scale_by(all_cards_image[i],card_size)
 
 spacing = 120  # カード間のスペース
 spacing2 = 120  # カード間のスペース
@@ -147,6 +148,13 @@ cardx_move2=0
 card_select=-1
 skillcard=0
 hand_max=9
+
+#コスト
+cost_image=[]
+for i in range(10):
+    cost_image.append(pygame.image.load(f"image/cost{i}.png").convert())
+    cost_image[i].set_colorkey((255, 255, 255))
+    cost_image[i]=pygame.transform.scale_by(cost_image[i],card_size)
 
 def draw_lines():
     for i in range(1, value.BOARD_ROWS):
@@ -261,28 +269,34 @@ def gameb():
 
     cardx,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2),630,10
     j=0
-    x = cardx+cardx_move/10 * spacing
+    x = cardx+cardx_move/10 * spacing/2
     x2 = cardx+cardx_move2/10 * spacing*20
     for i in value.hands:
         card_rect = all_cards_image[11].get_rect(topleft=(x + j * spacing, cardy))
         y = cardy - 10 if card_rect.collidepoint(pygame.mouse.get_pos()) else cardy
+        cardnumber=value.deck[value.decks][i]
         if j==len(value.hands):
-            value.screen.blit(all_cards_image[value.deck[value.decks][i]], (x2 + j * spacing, y))
+            value.screen.blit(all_cards_image[cardnumber], (x2 + j * spacing, y))
+            value.screen.blit(cost_image[value.cost[cardnumber]], (x2 + j * spacing, y))
         else:
-            value.screen.blit(all_cards_image[value.deck[value.decks][i]], (x + j * spacing, y))
+            value.screen.blit(all_cards_image[cardnumber], (x + j * spacing, y))
+            value.screen.blit(cost_image[value.cost[cardnumber]], (x + j * spacing, y))
         if card_rect.collidepoint(pygame.mouse.get_pos()):
-            detail(value.deck[value.decks][i],detailx,detaily)
+            detail(cardnumber,detailx,detaily)
         j+=1
     j=0
     for i in value.hands2:
         card_rect = all_cards_image[11].get_rect(topleft=(x + j * spacing, cardy2))
         y = cardy2 + 10 if card_rect.collidepoint(pygame.mouse.get_pos()) else cardy2
+        cardnumber=value.deck[value.decks2][i]
         if j==len(value.hands2):
-            value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (x2 + j * spacing, y))
+            value.screen.blit(all_cards_image[cardnumber], (x2 + j * spacing, y))
+            value.screen.blit(cost_image[value.cost[cardnumber]], (x2 + j * spacing, y))
         else:
-            value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (x + j * spacing, y))
+            value.screen.blit(all_cards_image[cardnumber], (x + j * spacing, y))
+            value.screen.blit(cost_image[value.cost[cardnumber]], (x + j * spacing, y))
         if card_rect.collidepoint(pygame.mouse.get_pos()):
-            detail(value.deck[value.decks2][i],detailx,detaily)
+            detail(cardnumber,detailx,detaily)
         j+=1
     
     value.screen.blit(turnend,(turnendx,turnendy))
@@ -381,7 +395,9 @@ def game():
         y = cardy
         if card_select_any==j:
             y-=10
-        value.screen.blit(all_cards_image[value.deck[value.decks][i]], (cardx + j * spacing, y))
+        cardnumber=value.deck[value.decks][i]
+        value.screen.blit(all_cards_image[cardnumber], (cardx + j * spacing, y))
+        value.screen.blit(cost_image[value.cost[cardnumber]], (cardx + j * spacing, y))
         j+=1
 
     card_select_any=-1
@@ -400,7 +416,9 @@ def game():
         y = cardy2
         if card_select_any==j:
             y+=10
-        value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (cardx2 + j * spacing2, y))
+        cardnumber=value.deck[value.decks2][i]
+        value.screen.blit(all_cards_image[cardnumber], (cardx2 + j * spacing2, y))
+        value.screen.blit(cost_image[value.cost[cardnumber]], (cardx2 + j * spacing2, y))
         j+=1
 
     if turnend_rect.collidepoint(pygame.mouse.get_pos()):
@@ -520,9 +538,9 @@ def change():
     #カード
     j=0
     cardx,cardx2,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2),639.5 - ((spacing2 * (len(value.hands2) - 1)+width) / 2),630,10
-    x = cardx+cardx_move/20 * spacing
+    x = cardx+cardx_move/20 * spacing/2
     x2 = cardx+cardx_move2/20 * spacing*20
-    x3 = cardx2+cardx_move/20 * spacing2
+    x3 = cardx2+cardx_move/20 * spacing2/2
     x4 = cardx2+cardx_move2/20 * spacing2*20
     
     card_select_any=-1
@@ -539,13 +557,17 @@ def change():
         y = cardy
         if card_select_any==j:
             y-=10
+        cardnumber=value.deck[value.decks][i]
         if value.player==1:
             if j==len(value.hands):
-                value.screen.blit(all_cards_image[value.deck[value.decks][i]], (x2 + j * spacing, y))
+                value.screen.blit(all_cards_image[cardnumber], (x2 + j * spacing, y))
+                value.screen.blit(cost_image[value.cost[cardnumber]], (x2 + j * spacing, y))
             else:
-                value.screen.blit(all_cards_image[value.deck[value.decks][i]], (x + j * spacing, y))
+                value.screen.blit(all_cards_image[cardnumber], (x + j * spacing, y))
+                value.screen.blit(cost_image[value.cost[cardnumber]], (x + j * spacing, y))
         else:
-            value.screen.blit(all_cards_image[value.deck[value.decks][i]], (cardx+j * spacing, y))
+            value.screen.blit(all_cards_image[cardnumber], (cardx+j * spacing, y))
+            value.screen.blit(cost_image[value.cost[cardnumber]], (cardx+j * spacing, y))
         j+=1
 
     card_select_any=-1
@@ -564,13 +586,17 @@ def change():
         y = cardy2
         if card_select_any==j:
             y+=10
+        cardnumber=value.deck[value.decks2][i]
         if value.player==2:
             if j==len(value.hands2):
-                value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (x4 + j * spacing2, y))
+                value.screen.blit(all_cards_image[cardnumber], (x4 + j * spacing2, y))
+                value.screen.blit(cost_image[value.cost[cardnumber]], (x4 + j * spacing2, y))
             else:
                 value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (x3 + j * spacing2, y))
+                value.screen.blit(cost_image[value.cost[cardnumber]], (x3 + j * spacing2, y))
         else:
             value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (cardx2 + j * spacing2, y))
+            value.screen.blit(cost_image[value.cost[cardnumber]], (cardx2 + j * spacing2, y))
         j+=1
 
     
@@ -599,7 +625,7 @@ def change():
     if value.t>60:
         value.gamestep=1
 
-    if value.t==1:
+    if value.t==1 or value.t==20:
         if value.player==1:
             if len(value.hands)<10:
                 handsadd(1,value.decks,1)
