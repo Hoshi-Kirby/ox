@@ -13,6 +13,12 @@ original_width, original_height = pekin.get_size()
 pekin = pygame.transform.scale_by(pekin,value.WINDOW_HEIGHT/original_height)
 widhe_skew=(value.WINDOW_WIDTH-original_width*value.WINDOW_HEIGHT/original_height)/2-2
 
+black_pekin=pygame.image.load("image/rightwipe.png").convert()
+black_pekin.set_colorkey((255, 255, 255))
+black_pekin.set_alpha(180)
+black_x ,black_y =662,-400
+black_x2,black_y2=795,650
+
 #フレーム
 frame_size=1
 frame=pygame.image.load("image/frame4.png").convert_alpha()
@@ -33,6 +39,7 @@ for y in range(h):
 frame.set_alpha(180)
 
 framex,framey=-360,20
+frame2x,frame2y,frame2y2=900,25,700
 
 #駒
 tokensize=1
@@ -95,6 +102,25 @@ turnend2.set_alpha(220)
 turnend.set_alpha(220)
 turnend_rect=turnend.get_rect(topleft=(turnendx,turnendy))
 
+#枚数
+mai=[]
+for i in range(10):
+    mai.append(pygame.image.load(f"image/{i}.png").convert())
+    mai[i].set_colorkey((255, 255, 255))
+mai10=pygame.image.load("image/1-.png").convert()
+mai20=pygame.image.load("image/2-.png").convert()
+rest=pygame.image.load("image/rest.png").convert()
+mai10.set_colorkey((255, 255, 255))
+mai20.set_colorkey((255, 255, 255))
+rest.set_colorkey((255, 255, 255))
+omaix=900
+omaiy=30
+xmaiy=700
+maix=omaix+200
+maimai_distance=10
+restx=omaix+100
+
+
 #メニュー
 menu_size=0.2
 menu_icon=pygame.image.load("image/menu.png").convert()
@@ -155,6 +181,9 @@ for i in range(10):
     cost_image.append(pygame.image.load(f"image/cost{i}.png").convert())
     cost_image[i].set_colorkey((255, 255, 255))
     cost_image[i]=pygame.transform.scale_by(cost_image[i],card_size)
+
+#先行一ターン目
+first=True
 
 def draw_lines():
     for i in range(1, value.BOARD_ROWS):
@@ -222,6 +251,12 @@ def gameb():
     global cardx_move2
     global spacing
     global spacing2
+    global first
+    #スタート変数
+    spacing = 120  # カード間のスペース
+    spacing2 = 120  # カード間のスペース
+    first=True
+
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
     for i in range(value.BOARD_COLS):
@@ -263,9 +298,25 @@ def gameb():
     value.screen.blit(line2,(detailx-50,line2y))
     value.screen.blit(line2,(detailx-50,line2y+line2yy))
 
-
-    value.screen.blit(token[0],(1000,700))
-    value.screen.blit(token[1],(1000,30))
+    value.screen.blit(black_pekin,(black_x,black_y))
+    value.screen.blit(black_pekin,(black_x2,black_y2))
+    value.screen.blit(token[0],(omaix,xmaiy))
+    value.screen.blit(token[1],(omaix,omaiy))
+    value.screen.blit(rest,(restx,omaiy))
+    value.screen.blit(rest,(restx,xmaiy))
+    if len(value.hands2)==0:
+        value.screen.blit(mai20,(maix,xmaiy))
+        value.screen.blit(mai[0],(maix+maimai_distance+10,xmaiy))
+    else:
+        value.screen.blit(mai10,(maix,xmaiy))
+        value.screen.blit(mai[10-len(value.hands)],(maix+maimai_distance,xmaiy))
+        
+    if len(value.hands)==0:
+        value.screen.blit(mai20,(maix,omaiy))
+        value.screen.blit(mai[0],(maix+maimai_distance+10,omaiy))
+    else:
+        value.screen.blit(mai10,(maix,omaiy))
+        value.screen.blit(mai[10-len(value.hands2)],(maix+maimai_distance,omaiy))
 
     cardx,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2),630,10
     j=0
@@ -373,8 +424,26 @@ def game():
     
     value.screen.blit(menu_icon,(menux,menuy))
 
-    value.screen.blit(token[0],(1000,700))
-    value.screen.blit(token[1],(1000,30))
+
+    value.screen.blit(black_pekin,(black_x,black_y))
+    value.screen.blit(black_pekin,(black_x2,black_y2))
+    value.screen.blit(token[0],(omaix,xmaiy))
+    value.screen.blit(token[1],(omaix,omaiy))
+    value.screen.blit(rest,(restx,omaiy))
+    value.screen.blit(rest,(restx,xmaiy))
+    if len(value.hands2)==0:
+        value.screen.blit(mai20,(maix,xmaiy))
+        value.screen.blit(mai[0],(maix+maimai_distance+10,xmaiy))
+    else:
+        value.screen.blit(mai10,(maix,xmaiy))
+        value.screen.blit(mai[10-len(value.hands)],(maix+maimai_distance,xmaiy))
+        
+    if len(value.hands)==0:
+        value.screen.blit(mai20,(maix,omaiy))
+        value.screen.blit(mai[0],(maix+maimai_distance+10,omaiy))
+    else:
+        value.screen.blit(mai10,(maix,omaiy))
+        value.screen.blit(mai[10-len(value.hands2)],(maix+maimai_distance,omaiy))
 
     
     cardx,cardx2,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2), 639.5 - ((spacing2 * (len(value.hands2) - 1)+width) / 2),630,10
@@ -507,6 +576,7 @@ def change():
     global cardx_move2
     global spacing
     global spacing2
+    global first
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
     for i in range(value.BOARD_COLS):
@@ -532,8 +602,25 @@ def change():
     
     value.screen.blit(menu_icon,(menux,menuy))
 
-    value.screen.blit(token[0],(1000,700))
-    value.screen.blit(token[1],(1000,30))
+    value.screen.blit(black_pekin,(black_x,black_y))
+    value.screen.blit(black_pekin,(black_x2,black_y2))
+    value.screen.blit(token[0],(omaix,xmaiy))
+    value.screen.blit(token[1],(omaix,omaiy))
+    value.screen.blit(rest,(restx,omaiy))
+    value.screen.blit(rest,(restx,xmaiy))
+    if len(value.hands2)==0:
+        value.screen.blit(mai20,(maix,xmaiy))
+        value.screen.blit(mai[0],(maix+maimai_distance+10,xmaiy))
+    else:
+        value.screen.blit(mai10,(maix,xmaiy))
+        value.screen.blit(mai[10-len(value.hands)],(maix+maimai_distance,xmaiy))
+        
+    if len(value.hands)==0:
+        value.screen.blit(mai20,(maix,omaiy))
+        value.screen.blit(mai[0],(maix+maimai_distance+10,omaiy))
+    else:
+        value.screen.blit(mai10,(maix,omaiy))
+        value.screen.blit(mai[10-len(value.hands2)],(maix+maimai_distance,omaiy))
 
     #カード
     j=0
@@ -625,7 +712,7 @@ def change():
     if value.t>60:
         value.gamestep=1
 
-    if value.t==1 or value.t==20:
+    if value.t==1 or ((not first) and value.t==40):
         if value.player==1:
             if len(value.hands)<10:
                 handsadd(1,value.decks,1)
@@ -636,6 +723,8 @@ def change():
                 handsadd(2,value.decks2,1)
                 cardx_move=10
                 cardx_move2=30
+    if value.t==40:
+        first=False
 
     if cardx_move>0:cardx_move-=1
     if cardx_move2>0:cardx_move2-=1

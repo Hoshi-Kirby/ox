@@ -296,12 +296,13 @@ def menu():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and value.fade_in==False and value.fade_out==False:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for i in range(tab+1):
                 if frame_rect[i].collidepoint(pygame.mouse.get_pos()):
                     match(i):
                         case 4:
                             value.fade_out = True
+                            value.fade_in = False
                             value.nextstep=-1
                         case (0 | 1 | 2 | 3):
                             value.menustep=1
@@ -482,7 +483,7 @@ def menu2():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and value.fade_in==False and value.fade_out==False:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if deck_change:
                 for i in range(4):
                     if change_deck_rect[i].collidepoint(pygame.mouse.get_pos()):
@@ -518,6 +519,7 @@ def menu2():
                     pass
                 if games_rect.collidepoint(pygame.mouse.get_pos()):
                     value.fade_out = True
+                    value.fade_in = False
                     value.nextstep=3
                 
             if deck_rect.collidepoint(pygame.mouse.get_pos()):

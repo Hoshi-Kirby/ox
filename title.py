@@ -98,12 +98,14 @@ def title():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and value.fade_in==False and value.fade_out==False:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if end_rect.collidepoint(pygame.mouse.get_pos()):
                     value.fade_out = True
+                    value.fade_in = False
                     value.nextstep=-1
                 if start_rect.collidepoint(pygame.mouse.get_pos()):
                     value.fade_out = True
+                    value.fade_in = False
                     value.nextstep=1
 
     
