@@ -34,3 +34,5 @@ while True:
             game.game()
         if value.gamestep==2:
             game.change()
+        if value.gamestep==3:
+            game.skillbase()

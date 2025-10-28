@@ -114,8 +114,8 @@ mai10.set_colorkey((255, 255, 255))
 mai20.set_colorkey((255, 255, 255))
 rest.set_colorkey((255, 255, 255))
 omaix=900
-omaiy=30
-xmaiy=700
+omaiy=700
+xmaiy=30
 maix=omaix+200
 maimai_distance=10
 restx=omaix+100
@@ -266,7 +266,11 @@ def gameb():
                     draw_token(i,j,value.board[i][j]-1)
                 case _:
                     pass
-    value.screen.blit(frame, (framex,framey))
+    if 50>value.t:
+        value.screen.blit(frame, (framex-(50-value.t)*4,framey))
+    else:
+        value.screen.blit(frame, (framex,framey))
+        
     
     if value.t<ready_time:
         font_size=font_size_max
@@ -298,8 +302,12 @@ def gameb():
     value.screen.blit(line2,(detailx-50,line2y))
     value.screen.blit(line2,(detailx-50,line2y+line2yy))
 
-    value.screen.blit(black_pekin,(black_x,black_y))
-    value.screen.blit(black_pekin,(black_x2,black_y2))
+    if 50>value.t:
+        y=(50-value.t)*4
+    else:
+        y=0
+    value.screen.blit(black_pekin,(black_x+y,black_y-y))
+    value.screen.blit(black_pekin,(black_x2+y,black_y2+y))
     value.screen.blit(token[0],(omaix,xmaiy))
     value.screen.blit(token[1],(omaix,omaiy))
     value.screen.blit(rest,(restx,omaiy))
@@ -309,14 +317,14 @@ def gameb():
         value.screen.blit(mai[0],(maix+maimai_distance+10,xmaiy))
     else:
         value.screen.blit(mai10,(maix,xmaiy))
-        value.screen.blit(mai[10-len(value.hands)],(maix+maimai_distance,xmaiy))
+        value.screen.blit(mai[10-len(value.hands2)],(maix+maimai_distance,xmaiy))
         
     if len(value.hands)==0:
         value.screen.blit(mai20,(maix,omaiy))
         value.screen.blit(mai[0],(maix+maimai_distance+10,omaiy))
     else:
         value.screen.blit(mai10,(maix,omaiy))
-        value.screen.blit(mai[10-len(value.hands2)],(maix+maimai_distance,omaiy))
+        value.screen.blit(mai[10-len(value.hands)],(maix+maimai_distance,omaiy))
 
     cardx,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2),630,10
     j=0
@@ -382,7 +390,7 @@ def gameb():
         value.screen.blit(value.fade_surface, (0, 0))
 
     for j in range(value.handsize_change[value.Startinghandsize]+1):
-        if value.t>0 and value.handsize_change[value.Startinghandsize]>0 and (ready_time+ready_time2)*j/(value.handsize_change[value.Startinghandsize])<=value.t<(ready_time+ready_time2)*j/(value.handsize_change[value.Startinghandsize])+1:
+        if value.t>0 and value.handsize_change[value.Startinghandsize]>0 and (ready_time)*j/(value.handsize_change[value.Startinghandsize])<=value.t<(ready_time)*j/(value.handsize_change[value.Startinghandsize])+1:
             handsadd(1,value.decks,1)
             handsadd(2,value.decks2,1)
             cardx_move=10
@@ -436,14 +444,14 @@ def game():
         value.screen.blit(mai[0],(maix+maimai_distance+10,xmaiy))
     else:
         value.screen.blit(mai10,(maix,xmaiy))
-        value.screen.blit(mai[10-len(value.hands)],(maix+maimai_distance,xmaiy))
+        value.screen.blit(mai[10-len(value.hands2)],(maix+maimai_distance,xmaiy))
         
     if len(value.hands)==0:
         value.screen.blit(mai20,(maix,omaiy))
         value.screen.blit(mai[0],(maix+maimai_distance+10,omaiy))
     else:
         value.screen.blit(mai10,(maix,omaiy))
-        value.screen.blit(mai[10-len(value.hands2)],(maix+maimai_distance,omaiy))
+        value.screen.blit(mai[10-len(value.hands)],(maix+maimai_distance,omaiy))
 
     
     cardx,cardx2,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2), 639.5 - ((spacing2 * (len(value.hands2) - 1)+width) / 2),630,10
@@ -495,7 +503,7 @@ def game():
     else:
         value.screen.blit(turnend,(turnendx,turnendy))
 
-
+    #event
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -507,10 +515,15 @@ def game():
                 value.gamestep=2
                 value.t=0
             if card_select>=0:
-                if value.player==1:
-                    skillcard=value.deck[value.decks][card_select]
-                else:
-                    skillcard=value.deck[value.decks2][card_select]
+                if (value.player==1 and len(value.hands)>value.cost[value.deck[value.decks][value.hands[card_select]]]) or (value.player==2 and len(value.hands2)>value.cost[value.deck[value.decks2][value.hands2[card_select]]]):
+                    if value.player==1:
+                        skillcard=value.deck[value.decks][value.hands[card_select]]
+                    else:
+                        skillcard=value.deck[value.decks2][value.hands2[card_select]]
+                    value.gamestep=3
+                    value.skillstep=0
+                    value.card_dy_mode=True
+                    skillcardfunc.riset(card_select)
             if menu_icon_rect.collidepoint(pygame.mouse.get_pos()):
                 value.step=1
 
@@ -541,9 +554,6 @@ def game():
         spacing2=80
     else:
         spacing2=50
-                        
-    if skillcard>0:
-        pass
                     
     if value.fade_out:
         value.fade_alpha += 20  # フェード速度（調整可）
@@ -613,14 +623,14 @@ def change():
         value.screen.blit(mai[0],(maix+maimai_distance+10,xmaiy))
     else:
         value.screen.blit(mai10,(maix,xmaiy))
-        value.screen.blit(mai[10-len(value.hands)],(maix+maimai_distance,xmaiy))
+        value.screen.blit(mai[10-len(value.hands2)],(maix+maimai_distance,xmaiy))
         
     if len(value.hands)==0:
         value.screen.blit(mai20,(maix,omaiy))
         value.screen.blit(mai[0],(maix+maimai_distance+10,omaiy))
     else:
         value.screen.blit(mai10,(maix,omaiy))
-        value.screen.blit(mai[10-len(value.hands2)],(maix+maimai_distance,omaiy))
+        value.screen.blit(mai[10-len(value.hands)],(maix+maimai_distance,omaiy))
 
     #カード
     j=0
@@ -728,5 +738,159 @@ def change():
 
     if cardx_move>0:cardx_move-=1
     if cardx_move2>0:cardx_move2-=1
+    value.t+=1
+    pygame.display.update()
+
+
+
+
+
+
+
+
+
+
+
+
+
+def skillbase():
+    global card_rect
+    global card_select
+    global skillcard
+    global spacing
+    global spacing2
+    value.screen.blit(pekin, (widhe_skew,0))
+    draw_lines()
+    for i in range(value.BOARD_COLS):
+        for j in range(value.BOARD_ROWS):
+            match value.board[i][j]:
+                case (1|2):
+                    draw_token(i,j,value.board[i][j]-1)
+                case _:
+                    pass
+    
+
+    value.screen.blit(frame, (framex,framey))
+    value.screen.blit(token[value.player-1], (detailx,sturny))
+    value.screen.blit(sturn, (detailx+100,sturny))
+    
+    value.screen.blit(no_event, (detailx,no_event_y))
+
+    value.screen.blit(line2,(detailx-50,line2y))
+    value.screen.blit(line2,(detailx-50,line2y+line2yy))
+    
+    value.screen.blit(menu_icon,(menux,menuy))
+
+    #枚数
+    value.screen.blit(black_pekin,(black_x,black_y))
+    value.screen.blit(black_pekin,(black_x2,black_y2))
+    value.screen.blit(token[0],(omaix,xmaiy))
+    value.screen.blit(token[1],(omaix,omaiy))
+    value.screen.blit(rest,(restx,omaiy))
+    value.screen.blit(rest,(restx,xmaiy))
+    if len(value.hands2)==0:
+        value.screen.blit(mai20,(maix,xmaiy))
+        value.screen.blit(mai[0],(maix+maimai_distance+10,xmaiy))
+    else:
+        value.screen.blit(mai10,(maix,xmaiy))
+        value.screen.blit(mai[10-len(value.hands2)],(maix+maimai_distance,xmaiy))
+        
+    if len(value.hands)==0:
+        value.screen.blit(mai20,(maix,omaiy))
+        value.screen.blit(mai[0],(maix+maimai_distance+10,omaiy))
+    else:
+        value.screen.blit(mai10,(maix,omaiy))
+        value.screen.blit(mai[10-len(value.hands)],(maix+maimai_distance,omaiy))
+
+    #手札カード
+    cardx,cardx2,cardy,cardy2 = 639.5 - ((spacing * (len(value.hands) - 1)+width) / 2), 639.5 - ((spacing2 * (len(value.hands2) - 1)+width) / 2),630,10
+    
+    value.card_select_base=[-1]*2
+    if value.player==1:
+        card_select_any=card_select
+    else:
+        card_select_any=-1
+    for i in range(len(value.hands)):
+        j=len(value.hands)-i-1
+        card_rect = all_cards_image[11].get_rect(topleft=(cardx + j * spacing, cardy))
+        if card_rect.collidepoint(pygame.mouse.get_pos()):
+            value.card_select_base[0]=j
+            break
+    j=0
+    for i in value.hands:
+        card_rect = all_cards_image[11].get_rect(topleft=(cardx + j * spacing, cardy))
+        y = cardy
+        if card_select_any!=j:
+            y+=value.card_dy[0][j]
+        if card_select_any==j:
+            y-=30
+        elif value.card_select_base[0]==j and value.card_dy_mode:
+            y-=10
+        cardnumber=value.deck[value.decks][i]
+        value.screen.blit(all_cards_image[cardnumber], (cardx+value.card_dx[0][j] + j * spacing, y))
+        value.screen.blit(cost_image[value.cost[cardnumber]], (cardx+value.card_dx[0][j] + j * spacing, y))
+        j+=1
+
+    if value.player==2:
+        card_select_any=card_select
+    else:
+        card_select_any=-1
+    for i in range(len(value.hands2)):
+        j=len(value.hands2)-i-1
+        card_rect = all_cards_image[11].get_rect(topleft=(cardx2 + j * spacing2, cardy2))
+        if card_rect.collidepoint(pygame.mouse.get_pos()):
+            value.card_select_base[1]=j
+            break
+    j=0
+    for i in value.hands2:
+        card_rect = all_cards_image[11].get_rect(topleft=(cardx2 + j * spacing2, cardy2))
+        y = cardy2
+        if card_select_any!=j:
+            y-=value.card_dy[1][j]
+        if card_select_any==j:
+            y+=30
+        elif value.card_select_base[1]==j and value.card_dy_mode:
+            y+=10
+        cardnumber=value.deck[value.decks2][i]
+        value.screen.blit(all_cards_image[cardnumber], (cardx2+value.card_dx[1][j] + j * spacing2, y))
+        value.screen.blit(cost_image[value.cost[cardnumber]], (cardx2+value.card_dx[1][j] + j * spacing2, y))
+        j+=1
+
+    #ターンエンド
+    if turnend_rect.collidepoint(pygame.mouse.get_pos()):
+        value.screen.blit(turnend2,(turnendx,turnendy))
+    else:
+        value.screen.blit(turnend,(turnendx,turnendy))
+
+
+
+    #event
+    value.click=0
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            value.click=event.button
+
+
+
+    if len(value.hands)<6:
+        spacing=120
+    elif len(value.hands)<8:
+        spacing=80
+    else:
+        spacing=50
+    if len(value.hands2)<6:
+        spacing2=120
+    elif len(value.hands2)<8:
+        spacing2=80
+    else:
+        spacing2=50
+
+    #それぞれ
+    skillcardfunc.portal(skillcard)
+
+
     value.t+=1
     pygame.display.update()
