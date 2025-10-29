@@ -83,4 +83,11 @@ skillstep=0
 card_dx=[[0]*10,[0]*10]
 card_dy=[[0]*10,[0]*10]
 card_dy_mode=False
+card_dcost=[0]*2
+
 card_select_base=[-1]*2
+spacing=120
+spacing2=120
+
+spacing_after=120
+spacing2_after=120
