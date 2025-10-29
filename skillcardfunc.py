@@ -11,6 +11,25 @@ cardx_move2=0
 card_x_before=[0]*10
 card_x_after=[0]*10
 width=pygame.image.load(f"image/card1-1.png").convert().get_width()
+
+#指示
+direct_image={}
+for i in (0,11,12,13,21,22,23,24,25,31,32,33,41,42,43,44,45):
+    direct_image[i]={}
+    for j in range(1,2):
+        try:
+            direct_image[i][j]=pygame.image.load(f"image/direction{i}-{j}.png").convert_alpha()
+            direct_image[i][j].set_colorkey((255, 255, 255))
+        except FileNotFoundError:
+            pass
+
+directx=20
+directy=250
+
+def direction(x,y):
+    if not value.detail_check:
+        value.screen.blit(direct_image[x][y], (directx,directy))
+
 def handsadd(h,m):
     check=[0]*20
     if h==1:
@@ -61,10 +80,6 @@ def portal(skillnum):
     global card_x_before
     global card_x_after
     if value.skillstep==0:
-        if value.click==1:
-            if value.card_select_base[value.player-1]>=0:
-                if card_select[value.card_select_base[value.player-1]]<2:
-                    card_select[value.card_select_base[value.player-1]]=1-card_select[value.card_select_base[value.player-1]]
         card_select_number=0
         for i in range(10):
             value.card_dy[value.player-1][i]=0
@@ -72,7 +87,9 @@ def portal(skillnum):
             if card_select[i]>=1:
                 value.card_dy[value.player-1][i]=-15
                 card_select_number+=1
-        if card_select_number==value.cost[skillnum]+1 or card_move_time>=0:
+
+        direction(0,1)
+        if card_select_number==max(1,value.cost[skillnum]+1+value.card_dcost[value.player-1]) or card_move_time>=0:
             #初回時
             if card_move_time==-1:
                 card_move_time=20
@@ -109,16 +126,21 @@ def portal(skillnum):
                     value.card_dx[value.player-1][i]=(20-card_move_time)*speedx
                     if card_move_time==0:
                         if value.player==1:
-                            card_select_skillnum.append(value.deck[value.decks][value.hands[i]])
                             del value.hands[i]
                         else:
-                            card_select_skillnum.append(value.deck[value.decks2][value.hands2[i]])
                             del value.hands2[i]
                 else:
                     value.card_dx[value.player-1][i]=(card_x_after[i]-card_x_before[i])/20*(20-card_move_time)
             if card_move_time==0:
                 value.skillstep=1
                 value.t=0
+                value.card_dx=[[0]*10,[0]*10]
+                value.card_dy=[[0]*10,[0]*10]
+                card_move_time=-2
+        elif value.click==1:
+            if value.card_select_base[value.player-1]>=0:
+                if card_select[value.card_select_base[value.player-1]]<2:
+                    card_select[value.card_select_base[value.player-1]]=1-card_select[value.card_select_base[value.player-1]]
         if card_move_time>0:card_move_time-=1
     else:
         globals()[f"skill{skillnum}"]()
@@ -140,9 +162,62 @@ def skill12():
         
 
 def skill13():
-    
-        value.skillstep=0
-        value.gamestep=1
+    global card_move_time
+    global card_select_base
+    if value.skillstep==1:
+        direction(13,1)
+        if value.click==1:
+            if value.card_select_base[2-value.player]>=0:
+                card_select_base=value.card_select_base[2-value.player]
+                value.skillstep=2
+        card_move_time=-1
+    if value.skillstep==2:
+        #初回時
+        if card_move_time==-1:
+            card_move_time=20
+            j=0
+            #カード間隔
+            if len(value.hands)-1<6:
+                value.spacing_after=120
+            elif len(value.hands)-1<8:
+                value.spacing_after=80
+            else:
+                value.spacing_after=50
+            if len(value.hands2)-1<6:
+                value.spacing2_after=120
+            elif len(value.hands2)-1<8:
+                value.spacing2_after=80
+            else:
+                value.spacing2_after=50
+
+            if value.player==2:
+                for i in range(len(value.hands)):
+                    card_x_before[i] = 639.5 - ((value.spacing * (len(value.hands) - 1)+width) / 2) + i * value.spacing
+                    card_x_after[i] = 639.5 - ((value.spacing_after * (len(value.hands) - 2)+width) / 2) + j * value.spacing_after
+                    if i!=card_select_base:
+                        j+=1
+            else:
+                for i in range(len(value.hands2)):
+                    card_x_before[i] = 639.5 - ((value.spacing2 * (len(value.hands2) - 1)+width) / 2) + i * value.spacing2
+                    card_x_after[i] = 639.5 - ((value.spacing2_after * (len(value.hands2) - 2)+width) / 2) + j * value.spacing2_after
+                    if i!=card_select_base:
+                        j+=1
+
+        for i in range(9, -1, -1):
+            if i==card_select_base:
+                value.card_dx[2-value.player][i]=(20-card_move_time)*speedx
+                if card_move_time==0:
+                    if value.player==2:
+                        del value.hands[i]
+                    else:
+                        del value.hands2[i]
+            else:
+                value.card_dx[2-value.player][i]=(card_x_after[i]-card_x_before[i])/20*(20-card_move_time)
+        if card_move_time==0:
+            value.skillstep=0
+            value.gamestep=1
+            value.t=0
+    if card_move_time>0:card_move_time-=1
         
 
 def skill21():
@@ -203,7 +278,11 @@ def skill32():
         
 
 def skill33():
-    
+    if value.t==20:
+        value.card_dcost[2-value.player]=2
+    for i in range(10):
+        value.card_dy[2-value.player][i]=(20-abs(20-value.t))*10
+    if value.t==40:
         value.skillstep=0
         value.gamestep=1
         
@@ -234,7 +313,7 @@ def skill44():
 
 def skill45():
     if value.t==20:
-        value.card_dcost[value.player-1]=-1
+        value.card_dcost[value.player-1]-=2
     for i in range(10):
         value.card_dy[value.player-1][i]=(20-abs(20-value.t))*10
     if value.t==40:

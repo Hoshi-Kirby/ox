@@ -177,7 +177,7 @@ hand_max=9
 
 #コスト
 cost_image=[]
-for i in range(10):
+for i in range(11):
     cost_image.append(pygame.image.load(f"image/cost{i}.png").convert())
     cost_image[i].set_colorkey((255, 255, 255))
     cost_image[i]=pygame.transform.scale_by(cost_image[i],card_size)
@@ -242,6 +242,7 @@ def handsadd(h,n,m):
             value.hands2.append(addnum)
         
 def detail(x,xx,yy):
+    value.detail_check=True
     value.screen.blit(detail_image[x], (xx,yy))
 
         
@@ -337,10 +338,10 @@ def gameb():
         cardnumber=value.deck[value.decks][i]
         if j==len(value.hands):
             value.screen.blit(all_cards_image[cardnumber], (x2 + j * value.spacing, y))
-            value.screen.blit(cost_image[value.cost[cardnumber]], (x2 + j * value.spacing, y))
+            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (x2 + j * value.spacing, y))
         else:
             value.screen.blit(all_cards_image[cardnumber], (x + j * value.spacing, y))
-            value.screen.blit(cost_image[value.cost[cardnumber]], (x + j * value.spacing, y))
+            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (x + j * value.spacing, y))
         if card_rect.collidepoint(pygame.mouse.get_pos()):
             detail(cardnumber,detailx,detaily)
         j+=1
@@ -475,7 +476,7 @@ def game():
             y-=10
         cardnumber=value.deck[value.decks][i]
         value.screen.blit(all_cards_image[cardnumber], (cardx + j * value.spacing, y))
-        value.screen.blit(cost_image[value.cost[cardnumber]], (cardx + j * value.spacing, y))
+        value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (cardx + j * value.spacing, y))
         j+=1
 
     card_select_any=-1
@@ -496,7 +497,7 @@ def game():
             y+=10
         cardnumber=value.deck[value.decks2][i]
         value.screen.blit(all_cards_image[cardnumber], (cardx2 + j * value.spacing2, y))
-        value.screen.blit(cost_image[value.cost[cardnumber]], (cardx2 + j * value.spacing2, y))
+        value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (cardx2 + j * value.spacing2, y))
         j+=1
 
     if turnend_rect.collidepoint(pygame.mouse.get_pos()):
@@ -516,7 +517,7 @@ def game():
                 value.gamestep=2
                 value.t=0
             if card_select>=0:
-                if (value.player==1 and len(value.hands)>value.cost[value.deck[value.decks][value.hands[card_select]]]) or (value.player==2 and len(value.hands2)>value.cost[value.deck[value.decks2][value.hands2[card_select]]]):
+                if (value.player==1 and len(value.hands)>value.cost[value.deck[value.decks][value.hands[card_select]]]+value.card_dcost[0]) or (value.player==2 and len(value.hands2)>value.cost[value.deck[value.decks2][value.hands2[card_select]]]+value.card_dcost[1]):
                     if value.player==1:
                         skillcard=value.deck[value.decks][value.hands[card_select]]
                     else:
@@ -659,13 +660,13 @@ def change():
         if value.player==1:
             if j==len(value.hands):
                 value.screen.blit(all_cards_image[cardnumber], (x2 + j * value.spacing, y))
-                value.screen.blit(cost_image[value.cost[cardnumber]], (x2 + j * value.spacing, y))
+                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (x2 + j * value.spacing, y))
             else:
                 value.screen.blit(all_cards_image[cardnumber], (x + j * value.spacing, y))
-                value.screen.blit(cost_image[value.cost[cardnumber]], (x + j * value.spacing, y))
+                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (x + j * value.spacing, y))
         else:
             value.screen.blit(all_cards_image[cardnumber], (cardx+j * value.spacing, y))
-            value.screen.blit(cost_image[value.cost[cardnumber]], (cardx+j * value.spacing, y))
+            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (cardx+j * value.spacing, y))
         j+=1
 
     card_select_any=-1
@@ -689,13 +690,13 @@ def change():
         if value.player==2:
             if j==len(value.hands2):
                 value.screen.blit(all_cards_image[cardnumber], (x4 + j * value.spacing2, y))
-                value.screen.blit(cost_image[value.cost[cardnumber]], (x4 + j * value.spacing2, y))
+                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (x4 + j * value.spacing2, y))
             else:
                 value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (x3 + j * value.spacing2, y))
-                value.screen.blit(cost_image[value.cost[cardnumber]], (x3 + j * value.spacing2, y))
+                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (x3 + j * value.spacing2, y))
         else:
             value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (cardx2 + j * value.spacing2, y))
-            value.screen.blit(cost_image[value.cost[cardnumber]], (cardx2 + j * value.spacing2, y))
+            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (cardx2 + j * value.spacing2, y))
         j+=1
 
     
@@ -768,6 +769,8 @@ def skillbase():
     global card_rect
     global card_select
     global skillcard
+
+    value.detail_check=False
     
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
@@ -825,20 +828,20 @@ def skillbase():
         card_rect = all_cards_image[11].get_rect(topleft=(cardx + j * value.spacing, cardy))
         if card_rect.collidepoint(pygame.mouse.get_pos()):
             value.card_select_base[0]=j
+            detail(value.deck[value.decks][value.hands[j]],detailx,detaily)
             break
     j=0
     for i in value.hands:
         card_rect = all_cards_image[11].get_rect(topleft=(cardx + j * value.spacing, cardy))
         y = cardy
-        if card_select_any!=j:
-            y+=value.card_dy[0][j]
+        y+=value.card_dy[0][j]
         if card_select_any==j:
             y-=30
         elif value.card_select_base[0]==j and value.card_dy_mode:
             y-=10
         cardnumber=value.deck[value.decks][i]
         value.screen.blit(all_cards_image[cardnumber], (cardx+value.card_dx[0][j] + j * value.spacing, y))
-        value.screen.blit(cost_image[value.cost[cardnumber]], (cardx+value.card_dx[0][j] + j * value.spacing, y))
+        value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (cardx+value.card_dx[0][j] + j * value.spacing, y))
         j+=1
 
     if value.player==2:
@@ -850,20 +853,20 @@ def skillbase():
         card_rect = all_cards_image[11].get_rect(topleft=(cardx2 + j * value.spacing2, cardy2))
         if card_rect.collidepoint(pygame.mouse.get_pos()):
             value.card_select_base[1]=j
+            detail(value.deck[value.decks2][value.hands2[j]],detailx,detaily)
             break
     j=0
     for i in value.hands2:
         card_rect = all_cards_image[11].get_rect(topleft=(cardx2 + j * value.spacing2, cardy2))
         y = cardy2
-        if card_select_any!=j:
-            y-=value.card_dy[1][j]
+        y-=value.card_dy[1][j]
         if card_select_any==j:
             y+=30
         elif value.card_select_base[1]==j and value.card_dy_mode:
             y+=10
         cardnumber=value.deck[value.decks2][i]
         value.screen.blit(all_cards_image[cardnumber], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))
-        value.screen.blit(cost_image[value.cost[cardnumber]], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))
+        value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))
         j+=1
 
     #ターンエンド
