@@ -64,7 +64,7 @@ handsize_change=[0,3,5]
 #deck
 deck=[[11]*20,[11]*20,[11]*20,[11]*20]
 deck[0]=[11,11,13,13,23,24,24,25,25,25,25,31,31,32,33,42,42,44,44,45]#11~45
-deck[3]=[12,12,12,21,21,21,22,22,22,41,41,41,43,43,43,43,45,45,45,45]
+deck[3]=[12,12,12,21,21,21,22,22,22,41,41,41,43,43,25,25,25,25,45,45]
 hands=[]#0~19
 hands2=[]
 deckname=[]
@@ -75,7 +75,13 @@ deckcolor=[0,1,3,2]
 gamestep=0
 OFFSET_X = (WINDOW_WIDTH - BOARD_SIZE) // 2
 OFFSET_Y = (WINDOW_HEIGHT - BOARD_SIZE) // 2
-board = [[0 for _ in range(BOARD_COLS)] for _ in range(BOARD_ROWS)]
+board = [[0 for _ in range(5)] for _ in range(5)]
+board2 = [[0 for _ in range(5)] for _ in range(5)]
+turn404 = [[-1 for _ in range(5)] for _ in range(5)]
+block=[-1]*4
+bridge_direct=[[0 for _ in range(5)] for _ in range(5)]  #0=横
+bridge_direct_n=0
+
 player = 1
 game_over = False
 click=0

@@ -46,7 +46,8 @@ tokensize=1
 token=[]
 token.append(pygame.image.load("image/maru.png").convert())
 token.append(pygame.image.load("image/batu.png").convert())
-for i in range(2):
+token.append(pygame.image.load("image/unuse.png").convert())
+for i in range(3):
     token[i] = pygame.transform.scale_by(token[i],tokensize)
     token[i].set_colorkey((255, 255, 255))
 
@@ -58,6 +59,7 @@ img = pygame.image.load("image/neon_line.png").convert_alpha()
 w, h = img.get_size()
 line = pygame.Surface((w, h), pygame.SRCALPHA)
 line2 = pygame.Surface((w, h), pygame.SRCALPHA)
+line3 = pygame.Surface((w, h), pygame.SRCALPHA)
 
 for y in range(h):
     for x in range(w):
@@ -70,15 +72,26 @@ for y in range(h):
         if r==0 and g==255:
             line.set_at((x, y), (255,b,255))
             line2.set_at((x,y),(255,255,255))
+            line3.set_at((x,y),(90+165*b/255,b,15+240*b/255))
         else:
             line.set_at((x, y), (255, 0, 255, alpha))
             line2.set_at((x, y), (255, 255, 255, alpha))
+            line3.set_at((x, y), (90, 0, 15, alpha))
 line = pygame.transform.scale_by(line,linesize)
 line2 = pygame.transform.scale_by(line2,linesize)
+line3 = pygame.transform.scale_by(line3,linesize)
 line_x=-100
 line_y=-110
 line2y=90
 line2yy=360
+
+#橋
+bridge_image=[]
+bridge_image.append(pygame.image.load("image/bridge-.png").convert())
+bridge_image.append(pygame.image.load("image/bridgel.png").convert())
+for i in range(2):
+    bridge_image[i].set_colorkey((255, 255, 255))
+    bridge_image[i].set_alpha(180)
 
 #Turn End
 turnend=pygame.image.load("image/Turn End.png").convert_alpha()
@@ -188,16 +201,42 @@ first=True
 
 def draw_lines():
     for i in range(1, value.BOARD_ROWS):
-        value.screen.blit(line, (value.OFFSET_X+line_x, value.OFFSET_Y + i * value.SQUARE_SIZE+line_y))
+        if value.block[i-1]>=0:
+            value.screen.blit(line3, (value.OFFSET_X+line_x, value.OFFSET_Y + i * value.SQUARE_SIZE+line_y))
+        else:
+            value.screen.blit(line, (value.OFFSET_X+line_x, value.OFFSET_Y + i * value.SQUARE_SIZE+line_y))
     for i in range(1, value.BOARD_COLS):
-        value.screen.blit(pygame.transform.rotate(line, -90), (value.OFFSET_X + i * value.SQUARE_SIZE+line_y, value.OFFSET_Y+line_x))
+        if value.block[i+1]>=0:
+            value.screen.blit(pygame.transform.rotate(line3, -90), (value.OFFSET_X + i * value.SQUARE_SIZE+line_y, value.OFFSET_Y+line_x))
+        else:
+            value.screen.blit(pygame.transform.rotate(line, -90), (value.OFFSET_X + i * value.SQUARE_SIZE+line_y, value.OFFSET_Y+line_x))
 
-def draw_token(row, col,ox):
-    x = value.OFFSET_X + col * value.SQUARE_SIZE
-    y = value.OFFSET_Y + row * value.SQUARE_SIZE
+def draw_token(col, row, ox, step):
+    if step==0:
+        x = value.OFFSET_X + (col-1) * value.SQUARE_SIZE
+        y = value.OFFSET_Y + (row-1) * value.SQUARE_SIZE
+    else:
+        x = value.OFFSET_X + col * value.SQUARE_SIZE/2
+        y = value.OFFSET_Y + row * value.SQUARE_SIZE/2
     margin = value.SQUARE_SIZE // 2  # 余白を調整
 
-    value.screen.blit(token[ox], (x-margin,y))
+    dy=15
+
+    if ox==2:
+        value.screen.blit(token[0], (x-margin,y))
+        value.screen.blit(token[1], (x-margin,y))
+    elif ox==3:
+        value.screen.blit(token[2], (x-margin,y))
+    elif ox==4:
+        value.screen.blit(token[1], (x-margin,y))
+        value.screen.blit(bridge_image[value.bridge_direct[col][row]], (x-margin,y))
+        value.screen.blit(token[0], (x-margin,y-dy))
+    elif ox==5:
+        value.screen.blit(token[0], (x-margin,y))
+        value.screen.blit(bridge_image[value.bridge_direct[col][row]], (x-margin,y))
+        value.screen.blit(token[1], (x-margin,y-dy))
+    else:
+        value.screen.blit(token[ox], (x-margin,y))
 
 def check_win(player):
     for row in value.board:
@@ -258,14 +297,24 @@ def gameb():
     value.spacing = 120  # カード間のスペース
     value.spacing2 = 120  # カード間のスペース
     first=True
+    value.board = [[0 for _ in range(5)] for _ in range(5)]
+    value.board2 = [[0 for _ in range(5)] for _ in range(5)]
+    value.turn404 = [[0 for _ in range(5)] for _ in range(5)]
+    value.bridge_direct=[[0 for _ in range(5)] for _ in range(5)]  #0=横
+    value.block=[-1]*4
 
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
-    for i in range(value.BOARD_COLS):
-        for j in range(value.BOARD_ROWS):
+    for i in range(5):
+        for j in range(5):
             match value.board[i][j]:
+                case (1|2|3|4|5|6):
+                    draw_token(i,j,value.board[i][j]-1,0)
+                case _:
+                    pass
+            match value.board2[i][j]:
                 case (1|2):
-                    draw_token(i,j,value.board[i][j]-1)
+                    draw_token(i,j,value.board2[i][j]-1,1)
                 case _:
                     pass
     if 50>value.t:
@@ -414,11 +463,16 @@ def game():
     
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
-    for i in range(value.BOARD_COLS):
-        for j in range(value.BOARD_ROWS):
+    for i in range(5):
+        for j in range(5):
             match value.board[i][j]:
+                case (1|2|3|4|5|6):
+                    draw_token(i,j,value.board[i][j]-1,0)
+                case _:
+                    pass
+            match value.board2[i][j]:
                 case (1|2):
-                    draw_token(i,j,value.board[i][j]-1)
+                    draw_token(i,j,value.board2[i][j]-1,1)
                 case _:
                     pass
     
@@ -590,11 +644,16 @@ def change():
     global card_dcost_mode
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
-    for i in range(value.BOARD_COLS):
-        for j in range(value.BOARD_ROWS):
+    for i in range(5):
+        for j in range(5):
             match value.board[i][j]:
+                case (1|2|3|4|5|6):
+                    draw_token(i,j,value.board[i][j]-1,0)
+                case _:
+                    pass
+            match value.board2[i][j]:
                 case (1|2):
-                    draw_token(i,j,value.board[i][j]-1)
+                    draw_token(i,j,value.board2[i][j]-1,1)
                 case _:
                     pass
     
@@ -736,10 +795,63 @@ def change():
                 handsadd(2,value.decks2,1)
                 cardx_move=10
                 cardx_move2=30
+
+    #一度だけ
     if value.t==40:
         first=False
         value.card_dy=[[0]*10,[0]*10]
         card_dcost_mode=False
+        for i in range(5):
+            for j in range(5):
+                if value.turn404[i][j]>0:
+                    value.turn404[i][j]-=1
+                elif value.turn404[i][j]==0:
+                    value.board[i][j]=0
+                    value.turn404[i][j]=-1
+        
+        for i in range(5):
+            for j in range(5):
+                if value.bridge_direct[i][j]==0 and value.board[i][j]==5 or value.bridge_direct[i][j]==1 and value.board[i][j]==6:
+                    if j>1:value.board2[2+(i-2)*2][2+(j-2)*2-1]=7
+                    if j<1:value.board2[2+(i-2)*2][2+(j-2)*2+1]=7
+                    if i>1:value.board2[2+(i-2)*2-1][2+(j-2)*2]=8
+                    if i<1:value.board2[2+(i-2)*2+1][2+(j-2)*2]=8
+                elif value.bridge_direct[i][j]==1 and value.board[i][j]==5 or value.bridge_direct[i][j]==0 and value.board[i][j]==6:
+                    if j>1:value.board2[2+(i-2)*2][2+(j-2)*2-1]=8
+                    if j<1:value.board2[2+(i-2)*2][2+(j-2)*2+1]=8
+                    if i>1:value.board2[2+(i-2)*2-1][2+(j-2)*2]=7
+                    if i<1:value.board2[2+(i-2)*2+1][2+(j-2)*2]=7
+
+        for i in range(4):
+            if value.block[i]>0:
+                value.block[i]-=1
+                if i==0:
+                    for j in range(5):
+                        value.board2[j][1]=9
+                if i==1:
+                    for j in range(5):
+                        value.board2[j][3]=9
+                if i==2:
+                    for j in range(5):
+                        value.board2[1][j]=9
+                if i==3:
+                    for j in range(5):
+                        value.board2[3][j]=9
+            elif value.block[i]==0:
+                if i==0:
+                    for j in range(5):
+                        value.board2[j][1]=0
+                if i==1:
+                    for j in range(5):
+                        value.board2[j][3]=0
+                if i==2:
+                    for j in range(5):
+                        value.board2[1][j]=0
+                if i==3:
+                    for j in range(5):
+                        value.board2[3][j]=0
+                value.block[i]=-1
+                
 
     if (value.card_dcost[2-value.player]!=0 or card_dcost_mode)and value.t<40:
         for i in range(10):
@@ -774,11 +886,16 @@ def skillbase():
     
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
-    for i in range(value.BOARD_COLS):
-        for j in range(value.BOARD_ROWS):
+    for i in range(5):
+        for j in range(5):
             match value.board[i][j]:
+                case (1|2|3|4|5|6):
+                    draw_token(i,j,value.board[i][j]-1,0)
+                case _:
+                    pass
+            match value.board2[i][j]:
                 case (1|2):
-                    draw_token(i,j,value.board[i][j]-1)
+                    draw_token(i,j,value.board2[i][j]-1,1)
                 case _:
                     pass
     
@@ -870,10 +987,7 @@ def skillbase():
         j+=1
 
     #ターンエンド
-    if turnend_rect.collidepoint(pygame.mouse.get_pos()):
-        value.screen.blit(turnend2,(turnendx,turnendy))
-    else:
-        value.screen.blit(turnend,(turnendx,turnendy))
+    value.screen.blit(turnend,(turnendx,turnendy))
 
 
 

@@ -489,11 +489,17 @@ def menu2():
                     if change_deck_rect[i].collidepoint(pygame.mouse.get_pos()):
                         value.decks=i
                         deck_change=False
+                if not frame3_rect.collidepoint(pygame.mouse.get_pos()):
+                    deck_change=False
+                    deck_change2=False
             elif deck_change2:
                 for i in range(4):
                     if change_deck_rect[i+4].collidepoint(pygame.mouse.get_pos()):
                         value.decks2=i
                         deck_change2=False
+                if not frame3_rect.collidepoint(pygame.mouse.get_pos()):
+                    deck_change=False
+                    deck_change2=False
             else:
                 for i in range(tab+1):
                     if frame_rect[i].collidepoint(pygame.mouse.get_pos()):
@@ -522,17 +528,14 @@ def menu2():
                     value.fade_in = False
                     value.nextstep=3
                 
-            if deck_rect.collidepoint(pygame.mouse.get_pos()):
-                deck_push=4
-                mouse_check_deck_time=0
-                deck_change=True
-            elif deck_rect2.collidepoint(pygame.mouse.get_pos()):
-                deck_push2=4
-                mouse_check_deck_time2=0
-                deck_change2=True
-            elif not frame3_rect.collidepoint(pygame.mouse.get_pos()):
-                deck_change=False
-                deck_change2=False
+                if deck_rect.collidepoint(pygame.mouse.get_pos()):
+                    deck_push=4
+                    mouse_check_deck_time=0
+                    deck_change=True
+                elif deck_rect2.collidepoint(pygame.mouse.get_pos()):
+                    deck_push2=4
+                    mouse_check_deck_time2=0
+                    deck_change2=True
 
                             
                     
