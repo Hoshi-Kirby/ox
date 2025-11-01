@@ -97,3 +97,5 @@ spacing2=120
 spacing_after=120
 spacing2_after=120
 detail_check=False
+
+winner=0

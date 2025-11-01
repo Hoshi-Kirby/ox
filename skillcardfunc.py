@@ -90,6 +90,7 @@ line = pygame.transform.scale_by(line,linesize)
 line_x=-100
 line_y=-110
 line4 = pygame.image.load("image/neon_line4.png").convert_alpha()
+line4 = pygame.transform.scale_by(line4,linesize)
 
 
 def draw_sq(col, row, alpha):
@@ -118,16 +119,21 @@ def draw_lines(x,alpha):#0,1,2,3 -_||
     global rect_lines
     line2=line.convert_alpha()
     line2.set_alpha(alpha)
+    line4_disy=122*0.8
+    line4_disx=50
     if x<2:
         if x==0:i=1
         if x==1:i=2
         value.screen.blit(line2, (value.OFFSET_X+line_x, value.OFFSET_Y + i * value.SQUARE_SIZE+line_y))
-        rect_lines=line4.get_rect(topleft=(value.OFFSET_X+line_x, value.OFFSET_Y + i * value.SQUARE_SIZE+line_y))
+        rect_lines=line4.get_rect(topleft=(value.OFFSET_X+line_x+line4_disx, value.OFFSET_Y + i * value.SQUARE_SIZE+line_y+line4_disy))
+
     else:
         if x==2:i=1
         if x==3:i=2
         value.screen.blit(pygame.transform.rotate(line2, -90), (value.OFFSET_X + i * value.SQUARE_SIZE+line_y, value.OFFSET_Y+line_x))
-        rect_lines=pygame.transform.rotate(line4, -90).get_rect(topleft=(value.OFFSET_X + i * value.SQUARE_SIZE+line_y, value.OFFSET_Y+line_x))
+        rect_lines=pygame.transform.rotate(line4, -90).get_rect(topleft=(value.OFFSET_X + i * value.SQUARE_SIZE+line_y+line4_disy, value.OFFSET_Y+line_x+line4_disx))
+        
+
 
 def direction(x,y):
     if not value.detail_check:
@@ -513,7 +519,7 @@ def skill31():
         value.board[click_x][click_y]=4
         value.skillstep=0
         value.gamestep=1
-        value.turn404[click_x][click_y]=4
+        value.turn404[click_x][click_y]=3
         
 
 def skill32():
@@ -521,14 +527,15 @@ def skill32():
         ch=0
         click_x=-1
         direction(32,1)
+        alpha_t=50+100*math.sin(value.t/20)
         if value.board2[1][1]==0 and value.board2[3][1]==0:
             ch=1
-            draw_lines(0,90+60*math.sin(value.t/20))
+            draw_lines(0,alpha_t)
             if rect_lines.collidepoint(pygame.mouse.get_pos()):
                 click_x=0
         if value.board2[1][3]==0 and value.board2[3][3]==0:
             ch=1
-            draw_lines(1,90+60*math.sin(value.t/20))
+            draw_lines(1,alpha_t)
             if rect_lines.collidepoint(pygame.mouse.get_pos()):
                 if click_x!=-1:
                     click_x=-2
@@ -536,7 +543,7 @@ def skill32():
                     click_x=1
         if value.board2[1][1]==0 and value.board2[1][3]==0:
             ch=1
-            draw_lines(2,90+60*math.sin(value.t/20))
+            draw_lines(2,alpha_t)
             if rect_lines.collidepoint(pygame.mouse.get_pos()):
                 if click_x!=-1:
                     click_x=-2
@@ -544,7 +551,7 @@ def skill32():
                     click_x=2
         if value.board2[3][1]==0 and value.board2[3][3]==0:
             ch=1
-            draw_lines(3,90+60*math.sin(value.t/20))
+            draw_lines(3,alpha_t)
             if rect_lines.collidepoint(pygame.mouse.get_pos()):
                 if click_x!=-1:
                     click_x=-2
@@ -571,7 +578,7 @@ def skill32():
                 value.board2[3][i]=9
         value.skillstep=0
         value.gamestep=1
-        value.block[click_x]=6
+        value.block[click_x]=5
         
 
 def skill33():
@@ -704,14 +711,14 @@ def skill43():
         value.board[click_x][click_y]=4+value.player
         if value.bridge_direct[click_x][click_y]==0 and value.player==1 or value.bridge_direct[click_x][click_y]==1 and value.player==2:
             if click_y>1:value.board2[2+(click_x-2)*2][2+(click_y-2)*2-1]=7
-            if click_y<1:value.board2[2+(click_x-2)*2][2+(click_y-2)*2+1]=7
+            if click_y<3:value.board2[2+(click_x-2)*2][2+(click_y-2)*2+1]=7
             if click_x>1:value.board2[2+(click_x-2)*2-1][2+(click_y-2)*2]=8
-            if click_x<1:value.board2[2+(click_x-2)*2+1][2+(click_y-2)*2]=8
+            if click_x<3:value.board2[2+(click_x-2)*2+1][2+(click_y-2)*2]=8
         else:
             if click_y>1:value.board2[2+(click_x-2)*2][2+(click_y-2)*2-1]=8
-            if click_y<1:value.board2[2+(click_x-2)*2][2+(click_y-2)*2+1]=8
+            if click_y<3:value.board2[2+(click_x-2)*2][2+(click_y-2)*2+1]=8
             if click_x>1:value.board2[2+(click_x-2)*2-1][2+(click_y-2)*2]=7
-            if click_x<1:value.board2[2+(click_x-2)*2+1][2+(click_y-2)*2]=7
+            if click_x<3:value.board2[2+(click_x-2)*2+1][2+(click_y-2)*2]=7
         value.skillstep=0
         value.gamestep=1
         

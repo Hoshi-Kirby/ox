@@ -36,3 +36,6 @@ while True:
             game.change()
         if value.gamestep==3:
             game.skillbase()
+    
+    while value.step==5:
+        pass

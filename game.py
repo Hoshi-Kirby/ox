@@ -72,7 +72,7 @@ for y in range(h):
         if r==0 and g==255:
             line.set_at((x, y), (255,b,255))
             line2.set_at((x,y),(255,255,255))
-            line3.set_at((x,y),(90+165*b/255,b,15+240*b/255))
+            line3.set_at((x,y),(90+100*b/255,170*b/255,15+140*b/255))
         else:
             line.set_at((x, y), (255, 0, 255, alpha))
             line2.set_at((x, y), (255, 255, 255, alpha))
@@ -169,6 +169,14 @@ ready_time2=100
 start_text=font.render("Start!", True, (255, 255, 255))
 start_time=150
 start_time2=50
+finish_text=font.render("Finish!", True, (255, 255, 255))
+finish_time=150
+finish_time2=50
+
+finish=False
+finisht=0
+
+
 
 #text.get_rect(center=(295, 300))
 
@@ -238,17 +246,69 @@ def draw_token(col, row, ox, step):
     else:
         value.screen.blit(token[ox], (x-margin,y))
 
-def check_win(player):
-    for row in value.board:
-        if all(cell == player for cell in row):
+def blockch(x,y,dx,dy,p):
+    if 0<=x*2-2+dx<5 and 0<=y*2-2+dy<5:
+        if value.board2[x*2-2+dx][y*2-2+dy]==0 or value.board2[x*2-2+dx][y*2-2+dy]==9-p:
             return True
-    for col in range(value.BOARD_COLS):
-        if all(value.board[row][col] == player for row in range(value.BOARD_ROWS)):
+    else:
+        return True
+    return False
+
+def blockch2(x,y,dx,dy,p):
+    if 0<=x*2-2+dx<5 and 0<=y*2-2+dy<5:
+        if value.board2[x*2-2+dx][y*2-2+dy]==p:
             return True
-    if all(value.board[i][i] == player for i in range(value.BOARD_ROWS)):
+    else:
         return True
-    if all(value.board[i][value.BOARD_ROWS - 1 - i] == player for i in range(value.BOARD_ROWS)):
+    return False
+
+def tokench(x,y,dx,dy,p):
+    ch=0
+    for i in range(3):
+        if 0<=x+dx*i<5 and 0<=y+dy*i<5:
+            if value.board[x+dx*i][y+dy*i]==p or value.board[x+dx*i][y+dy*i]==3 or 5<=value.board[x+dx*i][y+dy*i]<=6:
+                ch+=1
+    
+    for i in range(2):
+        if 0<=x+dx*i<5 and 0<=y+dy*i<5:
+            if blockch(x+dx*i,y+dy*i,dx,dy,p):
+                ch+=1
+    if ch==5:
         return True
+    return False
+
+def tokench2(x,y,dx,dy,p):
+    ch=0
+    for i in range(2):
+        if 0<=x+dx*i<5 and 0<=y+dy*i<5:
+            if value.board[x+dx*i][y+dy*i]==p or value.board[x+dx*i][y+dy*i]==3 or 5<=value.board[x+dx*i][y+dy*i]<=6:
+                ch+=1
+    
+    if blockch2(x,y,dx,dy,p):
+        ch+=1
+    if ch==3:
+        return True
+    return False
+
+def check_win(p):
+    for row in range(5):
+        for col in range(5):
+            for i in range(4):
+                dx=0
+                dy=0
+                match i:
+                    case 0:
+                        dx=1
+                    case 1:
+                        dx=1
+                        dy=1
+                    case 2:
+                        dy=1
+                    case 3:
+                        dx=-1
+                        dy=1
+                if tokench(row,col,dx,dy,p) or tokench2(row,col,dx,dy,p):
+                    return True
     return False
 
 def handsadd(h,n,m):
@@ -293,6 +353,7 @@ def gameb():
     
     
     global first
+    global finish
     #スタート変数
     value.spacing = 120  # カード間のスペース
     value.spacing2 = 120  # カード間のスペース
@@ -302,6 +363,8 @@ def gameb():
     value.turn404 = [[0 for _ in range(5)] for _ in range(5)]
     value.bridge_direct=[[0 for _ in range(5)] for _ in range(5)]  #0=横
     value.block=[-1]*4
+    finish=False
+    value.winner=0
 
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
@@ -459,7 +522,8 @@ def game():
     global card_rect
     global card_select
     global skillcard
-    
+    global finisht
+    global finish
     
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
@@ -590,8 +654,6 @@ def game():
             #     if 0<=clicked_row<3 and 0<=clicked_col<3:
             #         if value.board[clicked_row][clicked_col] == 0:
             #             value.board[clicked_row][clicked_col] = value.player
-
-            #             if check_win(value.player):
             #                 draw_token(i,j,value.player-1)
             #                 print(f"value.player {value.player} wins!")
             #                 value.game_over = True
@@ -610,13 +672,36 @@ def game():
         value.spacing2=80
     else:
         value.spacing2=50
-                    
+
+    #勝ち
+    if check_win(1):
+        value.winner=1
+    if check_win(2):
+        value.winner=2
+    if value.winner>0:
+        if not finish:
+            finisht=value.t
+            finish=True
+        if value.t<finish_time+finisht:
+            font_size=font_size_max
+        elif value.t<finish_time+finish_time2+finisht:
+            font_size=int((finish_time+finish_time2+finisht-value.t)*font_size_max/finish_time2)
+            value.fade_out=True
+            value.nextstep=1
+        if value.t<finish_time+finish_time2+finisht:
+            font = pygame.font.SysFont("Meiryo UI", font_size)
+            if value.t<finish_time+finish_time2:
+                finish_text = font.render("Finish!", True, (255, 160, 160))
+                value.screen.blit(finish_text, finish_text.get_rect(center=(639.5, 400)))
+
+
     if value.fade_out:
         value.fade_alpha += 20  # フェード速度（調整可）
         if value.fade_alpha >= 255:
             value.fade_alpha = 255
-            if value.nextstep==3:
-                value.step=4
+            if value.nextstep==1:
+                #step=5
+                value.step=0
                 value.fade_out = False
                 value.fade_in = True
 
