@@ -258,8 +258,6 @@ def blockch2(x,y,dx,dy,p):
     if 0<=x*2-2+dx<5 and 0<=y*2-2+dy<5:
         if value.board2[x*2-2+dx][y*2-2+dy]==p:
             return True
-    else:
-        return True
     return False
 
 def tokench(x,y,dx,dy,p):
@@ -279,14 +277,20 @@ def tokench(x,y,dx,dy,p):
 
 def tokench2(x,y,dx,dy,p):
     ch=0
+    ch2=0
     for i in range(2):
         if 0<=x+dx*i<5 and 0<=y+dy*i<5:
             if value.board[x+dx*i][y+dy*i]==p or value.board[x+dx*i][y+dy*i]==3 or 5<=value.board[x+dx*i][y+dy*i]<=6:
                 ch+=1
+                if i==0:
+                    ch2+=1
     
     if blockch2(x,y,dx,dy,p):
         ch+=1
-    if ch==3:
+        ch2+=1
+    if blockch2(x,y,-dx,-dy,p):
+        ch2+=1
+    if ch==3 or ch2==3:
         return True
     return False
 
@@ -360,11 +364,12 @@ def gameb():
     first=True
     value.board = [[0 for _ in range(5)] for _ in range(5)]
     value.board2 = [[0 for _ in range(5)] for _ in range(5)]
-    value.turn404 = [[0 for _ in range(5)] for _ in range(5)]
+    value.turn404 = [[-1 for _ in range(5)] for _ in range(5)]
     value.bridge_direct=[[0 for _ in range(5)] for _ in range(5)]  #0=横
     value.block=[-1]*4
     finish=False
     value.winner=0
+    value.card_dcost=[0]*2
 
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
@@ -629,7 +634,7 @@ def game():
             pygame.quit()
             sys.exit()
 
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and (not finish):
             if turnend_rect.collidepoint(pygame.mouse.get_pos()):
                 value.player = 2 if value.player == 1 else 1
                 value.gamestep=2
@@ -676,9 +681,22 @@ def game():
     #勝ち
     if check_win(1):
         value.winner=1
+        if not finish:
+            finisht=value.t
+            finish=True
+        if value.t<finish_time+finisht:
+            font_size=font_size_max
+        elif value.t<finish_time+finish_time2+finisht:
+            font_size=int((finish_time+finish_time2+finisht-value.t)*font_size_max/finish_time2)
+            value.fade_out=True
+            value.nextstep=1
+        if value.t<finish_time+finish_time2+finisht:
+            font = pygame.font.SysFont("Meiryo UI", font_size)
+            if value.t<finish_time+finish_time2:
+                finish_text = font.render("Finish!", True, (255, 160, 160))
+                value.screen.blit(finish_text, finish_text.get_rect(center=(639.5, 400)))
     if check_win(2):
         value.winner=2
-    if value.winner>0:
         if not finish:
             finisht=value.t
             finish=True
@@ -700,8 +718,7 @@ def game():
         if value.fade_alpha >= 255:
             value.fade_alpha = 255
             if value.nextstep==1:
-                #step=5
-                value.step=0
+                value.step=5
                 value.fade_out = False
                 value.fade_in = True
 

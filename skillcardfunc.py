@@ -686,7 +686,7 @@ def skill43():
         ch=0
         click_x,click_y=-1,-1
         direction(43,1)
-        value.screen.blit(bridge_image[value.bridge_direct_n],(turnx-40,turny-60))
+        value.screen.blit(bridge_image[value.bridge_direct_n],(turnx-30,turny-50))
         if turn_rect.collidepoint(pygame.mouse.get_pos()):
             value.screen.blit(turn2,(turnx,turny))
         else:

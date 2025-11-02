@@ -6,6 +6,7 @@ import game
 import value
 import title
 import menu
+import gameset
 pygame.init()
 
 value.player = 1
@@ -38,4 +39,4 @@ while True:
             game.skillbase()
     
     while value.step==5:
-        pass
+        gameset.gameset()
