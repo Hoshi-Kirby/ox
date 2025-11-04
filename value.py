@@ -59,21 +59,21 @@ firstplayer=0
 decks=0#0~3
 decks2=0
 handsize_change=[0,3,5]
-
+make_deck_ka=1
 
 #deck
-deck=[[11]*20,[11]*20,[11]*20,[11]*20]
+deck=[[11]*20,[],[],[]]
 deck[0]=[11,11,13,13,23,24,24,25,25,25,25,31,31,32,33,42,42,44,44,45]#11~45
-deck[1]=[25,25,25,25,25,25,25,25,25,25,45,45,45,45,45,45,45,45,45,45]
-deck[3]=[12,12,12,21,21,21,22,22,22,41,41,41,43,43,25,25,25,25,45,45]
 hands=[]#0~19
 hands2=[]
 deckname=[]
 deckcard=[]
-deckcolor=[0,1,3,2]
+deckcolor=[0,0,0,0]
 
 #game
 gamestep=0
+gamereset=False
+firstfirst=True
 OFFSET_X = (WINDOW_WIDTH - BOARD_SIZE) // 2
 OFFSET_Y = (WINDOW_HEIGHT - BOARD_SIZE) // 2
 board = [[0 for _ in range(5)] for _ in range(5)]

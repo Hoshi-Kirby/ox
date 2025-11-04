@@ -7,6 +7,7 @@ import value
 import title
 import menu
 import gameset
+import make
 pygame.init()
 
 value.player = 1
@@ -19,16 +20,20 @@ while True:
             menu.menu()
         if value.menustep==1:
             menu.menu2()
+    while value.step==2:
+        make.make()
     if value.step==4:
+        value.gamereset=False
         value.t=0
         value.gamestep=0
         value.hands=[]
         value.hands2=[]
+        value.firstfirst=True
         if value.firstplayer==0:
             value.player=random.randint(1,2)
         else:
             value.player=value.firstplayer
-    while value.step==4:
+    while value.step==4 and (not value.gamereset):
         if value.gamestep==0:
             game.gameb()
         if value.gamestep==1:

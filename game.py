@@ -7,6 +7,8 @@ import random
 import skillcardfunc
 pygame.init()
 
+menut=0
+tch=0
 #壁紙
 pekin = pygame.image.load("image/neon_city.png").convert()
 original_width, original_height = pekin.get_size()
@@ -139,7 +141,43 @@ menu_size=0.2
 menu_icon=pygame.image.load("image/menu.png").convert()
 menu_icon = pygame.transform.scale_by(menu_icon,menu_size)
 menux,menuy=20,20
+menu_icon.set_colorkey((255, 255, 255))
 menu_icon_rect=menu_icon.get_rect(topleft=(menux, menuy))
+
+pausesize=1
+pausename = pygame.image.load("image/pause.png").convert()
+pausename = pygame.transform.scale_by(pausename,pausesize)
+original_width_pause, original_height_pause = pausename.get_size()
+width_skew_pause=value.WINDOW_WIDTH/2-original_width_pause/2
+pausename.set_colorkey((255, 255, 255))
+pausey=50
+
+buttonsize=2
+button=[]
+buttony=[0]*3
+button_rect=[0]*3
+button.append(pygame.image.load("image/black_button_tu.png").convert())
+button.append(pygame.image.load("image/black_button_tu2.png").convert())
+buttony[0]=400
+button.append(pygame.image.load("image/black_button_ha.png").convert())
+button.append(pygame.image.load("image/black_button_ha2.png").convert())
+buttony[1]=500
+button.append(pygame.image.load("image/black_button_o.png").convert())
+button.append(pygame.image.load("image/black_button_o2.png").convert())
+buttony[2]=600
+for i in range(6):
+    button[i].set_colorkey((255, 255, 255))
+    button[i] = pygame.transform.scale_by(button[i],buttonsize)
+
+original_width_button, original_height_pause = button[0].get_size()
+width_skew_button=value.WINDOW_WIDTH/2-original_width_button/2
+for i in range(3):
+    button_rect[i]=button[0].get_rect(topleft=(width_skew_button,buttony[i]))
+
+menu=False
+menumode=False
+pause_ka=-1
+
 
 #のターン
 sturn=pygame.image.load("image/'s turn.png").convert()
@@ -175,7 +213,6 @@ finish_time2=50
 
 finish=False
 finisht=0
-
 
 
 #text.get_rect(center=(295, 300))
@@ -315,6 +352,16 @@ def check_win(p):
                     return True
     return False
 
+def menuui():
+    global pause_ka
+    pause_ka=-1
+    value.screen.blit(pausename, (width_skew_pause,pausey+math.sin(menut/100)*10))
+    for i in range(3):
+        if button_rect[i].collidepoint(pygame.mouse.get_pos()):
+            value.screen.blit(button[i*2+1], (width_skew_button,buttony[i]))
+            pause_ka=i
+        else:
+            value.screen.blit(button[i*2], (width_skew_button,buttony[i]))
 def handsadd(h,n,m):
     check=[0]*20
     if h==1:
@@ -354,7 +401,10 @@ def gameb():
     global font_size
     global cardx_move
     global cardx_move2
-    
+    global menut
+    global menu
+    global menumode
+    global tch
     
     global first
     global finish
@@ -370,6 +420,10 @@ def gameb():
     finish=False
     value.winner=0
     value.card_dcost=[0]*2
+    
+    if value.firstfirst:
+        menumode=False
+        value.firstfirst=False
 
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
@@ -389,23 +443,6 @@ def gameb():
         value.screen.blit(frame, (framex-(50-value.t)*4,framey))
     else:
         value.screen.blit(frame, (framex,framey))
-        
-    
-    if value.t<ready_time:
-        font_size=font_size_max
-    elif value.t<ready_time+ready_time2:
-        font_size=int((ready_time+ready_time2-value.t)*font_size_max/ready_time2)  # 毎フレーム1ずつ小さく
-    elif value.t<start_time+ready_time+ready_time2:
-        font_size=font_size_max
-    elif value.t<start_time+start_time2+ready_time+ready_time2:
-        font_size=int((start_time+start_time2-value.t+ready_time+ready_time2)*font_size_max/start_time2)
-    font = pygame.font.SysFont("Meiryo UI", font_size)
-    if value.t<ready_time+ready_time2:
-        ready_text = font.render("Ready?", True, (255, 160, 160))
-        value.screen.blit(ready_text, ready_text.get_rect(center=(639.5, 400)))
-    elif value.t<start_time+start_time2+ready_time+ready_time2:
-        start_text = font.render("Start!", True, (255, 160, 160))
-        value.screen.blit(start_text, start_text.get_rect(center=(639.5, 400)))
 
     if value.t<60:
         value.screen.blit(token[value.player-1], (detailx+math.sin(value.t/10*math.pi)*10,sturny))
@@ -478,10 +515,63 @@ def gameb():
         j+=1
     
     value.screen.blit(turnend,(turnendx,turnendy))
+
+    
+    if value.t<ready_time:
+        font_size=font_size_max
+    elif value.t<ready_time+ready_time2:
+        font_size=int((ready_time+ready_time2-value.t)*font_size_max/ready_time2)  # 毎フレーム1ずつ小さく
+    elif value.t<start_time+ready_time+ready_time2:
+        font_size=font_size_max
+    elif value.t<start_time+start_time2+ready_time+ready_time2:
+        font_size=int((start_time+start_time2-value.t+ready_time+ready_time2)*font_size_max/start_time2)
+    font = pygame.font.SysFont("Meiryo UI", font_size)
+    if value.t<ready_time+ready_time2:
+        ready_text = font.render("Ready?", True, (255, 160, 160))
+        value.screen.blit(ready_text, ready_text.get_rect(center=(639.5, 400)))
+    elif value.t<start_time+start_time2+ready_time+ready_time2:
+        start_text = font.render("Start!", True, (255, 160, 160))
+        value.screen.blit(start_text, start_text.get_rect(center=(639.5, 400)))
+
+    #メニューーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+    if menu:
+        value.fade_alpha += 20  # フェード速度（調整可）
+        if value.fade_alpha >= 150:
+            value.fade_alpha = 150
+            menumode=True
+
+        value.fade_surface.set_alpha(value.fade_alpha)
+        value.screen.blit(value.fade_surface, (0, 0))
+
+    if menumode:
+        menuui()
+
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if menumode:
+                menumode=False
+                menu=False
+                match pause_ka:
+                    case 0:
+                        pass
+                    case 1:
+                        value.fade_out=True
+                        value.fade_in=False
+                        value.nextstep=0
+                    case 2:
+                        value.fade_out=True
+                        value.fade_in=False
+                        value.nextstep=-1
+                    case _:
+                        menumode=True
+                        menu=True
+            else:
+                if menu_icon_rect.collidepoint(pygame.mouse.get_pos()):
+                    menu=True
     
     if value.t>start_time+start_time2+ready_time+ready_time2:
         value.gamestep=1
@@ -490,16 +580,25 @@ def gameb():
         value.fade_alpha += 20  # フェード速度（調整可）
         if value.fade_alpha >= 255:
             value.fade_alpha = 255
-            if value.nextstep==3:
+            if value.nextstep==1:
+                value.step=5
                 value.fade_out = False
                 value.fade_in = True
-
+            if value.nextstep==-1:
+                value.step=1
+                value.fade_out = False
+                value.fade_in = True
+            if value.nextstep==0:
+                value.gamereset=True
+                value.fade_out = False
+                value.fade_in = True
         value.fade_surface.set_alpha(value.fade_alpha)
         value.screen.blit(value.fade_surface, (0, 0))
 
     if value.fade_in:
         value.t=0
-        value.fade_alpha -= 20  # フェード速度（調整可）
+        if not menu:
+            value.fade_alpha -= 20  # フェード速度（調整可）
         if value.fade_alpha <= 0:
             value.fade_alpha = 0
 
@@ -509,15 +608,20 @@ def gameb():
         value.screen.blit(value.fade_surface, (0, 0))
 
     for j in range(value.handsize_change[value.Startinghandsize]+1):
-        if value.t>0 and value.handsize_change[value.Startinghandsize]>0 and (ready_time)*j/(value.handsize_change[value.Startinghandsize])<=value.t<(ready_time)*j/(value.handsize_change[value.Startinghandsize])+1:
-            handsadd(1,value.decks,1)
-            handsadd(2,value.decks2,1)
-            cardx_move=10
-            cardx_move2=30
+        if tch != value.t:
+            if value.t>0 and value.handsize_change[value.Startinghandsize]>0 and (ready_time)*j/(value.handsize_change[value.Startinghandsize])<=value.t<(ready_time)*j/(value.handsize_change[value.Startinghandsize])+1:
+                handsadd(1,value.decks,1)
+                handsadd(2,value.decks2,1)
+                cardx_move=10
+                cardx_move2=30
+    
+    tch=value.t
 
     if cardx_move>0:cardx_move-=1
     if cardx_move2>0:cardx_move2-=1
-    value.t+=1
+    if not menu:
+        value.t+=1
+    menut+=1
     pygame.display.update()
 
 
@@ -529,6 +633,10 @@ def game():
     global skillcard
     global finisht
     global finish
+    global menumode
+    global menu
+    global menumode
+    global menut
     
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
@@ -628,6 +736,21 @@ def game():
     else:
         value.screen.blit(turnend,(turnendx,turnendy))
 
+
+    #メニューーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+    if menu:
+        value.fade_alpha += 20  # フェード速度（調整可）
+        if value.fade_alpha >= 150:
+            value.fade_alpha = 150
+            menumode=True
+
+        value.fade_surface.set_alpha(value.fade_alpha)
+        value.screen.blit(value.fade_surface, (0, 0))
+
+    if menumode:
+        menuui()
+
+
     #event
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -635,22 +758,40 @@ def game():
             sys.exit()
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and (not finish):
-            if turnend_rect.collidepoint(pygame.mouse.get_pos()):
-                value.player = 2 if value.player == 1 else 1
-                value.gamestep=2
-                value.t=0
-            if card_select>=0:
-                if (value.player==1 and len(value.hands)>value.cost[value.deck[value.decks][value.hands[card_select]]]+value.card_dcost[0]) or (value.player==2 and len(value.hands2)>value.cost[value.deck[value.decks2][value.hands2[card_select]]]+value.card_dcost[1]):
-                    if value.player==1:
-                        skillcard=value.deck[value.decks][value.hands[card_select]]
-                    else:
-                        skillcard=value.deck[value.decks2][value.hands2[card_select]]
-                    value.gamestep=3
-                    value.skillstep=0
-                    value.card_dy_mode=True
-                    skillcardfunc.riset(card_select)
-            if menu_icon_rect.collidepoint(pygame.mouse.get_pos()):
-                value.step=1
+            if menumode:
+                menumode=False
+                menu=False
+                match pause_ka:
+                    case 0:
+                        pass
+                    case 1:
+                        value.fade_out=True
+                        value.fade_in=False
+                        value.nextstep=0
+                    case 2:
+                        value.fade_out=True
+                        value.fade_in=False
+                        value.nextstep=-1
+                    case _:
+                        menumode=True
+                        menu=True
+            else:
+                if turnend_rect.collidepoint(pygame.mouse.get_pos()):
+                    value.player = 2 if value.player == 1 else 1
+                    value.gamestep=2
+                    value.t=0
+                if card_select>=0:
+                    if (value.player==1 and len(value.hands)>value.cost[value.deck[value.decks][value.hands[card_select]]]+value.card_dcost[0]) or (value.player==2 and len(value.hands2)>value.cost[value.deck[value.decks2][value.hands2[card_select]]]+value.card_dcost[1]):
+                        if value.player==1:
+                            skillcard=value.deck[value.decks][value.hands[card_select]]
+                        else:
+                            skillcard=value.deck[value.decks2][value.hands2[card_select]]
+                        value.gamestep=3
+                        value.skillstep=0
+                        value.card_dy_mode=True
+                        skillcardfunc.riset(card_select)
+                if menu_icon_rect.collidepoint(pygame.mouse.get_pos()):
+                    menu=True
 
             # mouseX, mouseY = event.pos
             # if value.OFFSET_X <= mouseX < value.OFFSET_X + value.BOARD_SIZE and value.OFFSET_Y <= mouseY < value.OFFSET_Y + value.BOARD_SIZE:
@@ -721,6 +862,14 @@ def game():
                 value.step=5
                 value.fade_out = False
                 value.fade_in = True
+            if value.nextstep==-1:
+                value.step=1
+                value.fade_out = False
+                value.fade_in = True
+            if value.nextstep==0:
+                value.gamereset=True
+                value.fade_out = False
+                value.fade_in = True
 
         value.fade_surface.set_alpha(value.fade_alpha)
         value.screen.blit(value.fade_surface, (0, 0))
@@ -736,6 +885,7 @@ def game():
         value.screen.blit(value.fade_surface, (0, 0))
 
     value.t+=1
+    menut+=1
     pygame.display.update()
 
 def change():
