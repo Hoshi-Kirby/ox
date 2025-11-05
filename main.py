@@ -8,10 +8,13 @@ import title
 import menu
 import gameset
 import make
+import save_load
 pygame.init()
 
 value.player = 1
 value.game_over = False
+for i in range(1,4):
+    save_load.load(i)
 while True:
     while value.step==0:
         title.title()
@@ -20,6 +23,9 @@ while True:
             menu.menu()
         if value.menustep==1:
             menu.menu2()
+    if value.step==2:
+        value.t=0
+        value.hold_deck=value.deck[value.make_deck_ka][:]
     while value.step==2:
         make.make()
     if value.step==4:

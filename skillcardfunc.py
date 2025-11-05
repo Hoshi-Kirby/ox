@@ -289,7 +289,7 @@ def skill12():
         ch=0
         for i in range(1,4):
             for j in range(1,4):
-                if 1<=value.board[j][i]<=3 or 1<=value.board[j-1][i]<=3 or 1<=value.board[j][i-1]<=3 or 1<=value.board[j+1][i]<=3 or 1<=value.board[j][i+1]<=3:
+                if 1<=value.board[j][i] or 1<=value.board[j-1][i] or 1<=value.board[j][i-1] or 1<=value.board[j+1][i] or 1<=value.board[j][i+1]:
                     ch=1
                     draw_sq(j,i,90+40*math.sin(value.t/20))
                     if sq_rect.collidepoint(pygame.mouse.get_pos()):

@@ -18,22 +18,22 @@ step=0
 nextstep=0
 #cost
 cost={}
-cost[11]=3
-cost[12]=5
-cost[13]=2
-cost[21]=5
-cost[22]=6
+cost[11]=1#delete
+cost[12]=3#超新星爆発
+cost[13]=1#カード割り
+cost[21]=6#外れ値
+cost[22]=6#囲碁
 cost[23]=6#ダブルダウン
-cost[24]=1
-cost[25]=4#インベート
-cost[31]=2#NOT FOUND
-cost[32]=4
-cost[33]=1#ハイパーインフレ
-cost[41]=7
-cost[42]=4#突き歩
+cost[24]=1#１ドロー
+cost[25]=5#cout<<
+cost[31]=1#NOT FOUND
+cost[32]=3#ファイアウォール
+cost[33]=0#ハイパーインフレ
+cost[41]=4#キャスリング
+cost[42]=3#突き歩
 cost[43]=3#立体交差
-cost[44]=8#中割り
-cost[45]=0#デフレスパイラル
+cost[44]=7#中割り
+cost[45]=1#デフレスパイラル
 
 
 
@@ -100,3 +100,6 @@ spacing2_after=120
 detail_check=False
 
 winner=0
+
+#make
+hold_deck=[]

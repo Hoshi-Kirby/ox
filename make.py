@@ -1,9 +1,10 @@
 import pygame
 import sys
 import math
+import sqlite3
 
 import value
-
+import save_load
 pygame.init()
 
 t=-1
@@ -131,8 +132,24 @@ mouse_check_make_deck_time=[0,0,0,0,0]
 all_cards_image={}
 card_size=2
 for i in (11,12,13,21,22,23,24,25,31,32,33,41,42,43,44,45):
-    all_cards_image[i]=pygame.image.load(f"image/card{i // 10}-{i % 10}.png").convert()
-    all_cards_image[i]=pygame.transform.scale_by(all_cards_image[i],card_size)
+    img = pygame.image.load(f"image/card{i // 10}-{i % 10}.png").convert()
+    img = pygame.transform.scale_by(img, card_size)
+    all_cards_image[i] = img
+
+    gray_img = img.copy()
+    for x in range(img.get_width()):
+        for y in range(img.get_height()):
+            r, g, b, a = img.get_at((x, y))
+            gray = int(0.299 * r + 0.587 * g + 0.114 * b)  # NTSC係数でグレースケール
+            gray_img.set_at((x, y), (gray, gray, gray, a))
+    
+
+    # 白黒画像を +50 したキーで保存
+    all_cards_image[i + 50] = gray_img
+
+
+    
+
 
 cards_select=-1
 
@@ -183,9 +200,15 @@ def make():
     global cards_select
     global back_frame
     global flont_frame
+
+    if value.t<8:
+        x2=100*(8-value.t)
+    else:
+        x2=0
+
     value.screen.blit(pekin, (width_skew,0))
-    value.screen.blit(black, (blackx,blacky))
-    value.screen.blit(black_sq, (black_sqx,black_sqy))
+    value.screen.blit(black, (blackx-x2,blacky))
+    value.screen.blit(black_sq, (black_sqx,black_sqy-x2))
 
     collide=-1
     for i in range(len(value.deck[value.make_deck_ka])):
@@ -193,13 +216,13 @@ def make():
         if card_bar_rect.collidepoint(pygame.mouse.get_pos()) and collide==-1:
             collide=i
             detail(value.deck[value.make_deck_ka][i],detailx,detaily)
-            value.screen.blit(all_cards_bar[value.deck[value.make_deck_ka][i]], (card_bar_x-10,card_bar_y+card_bar_distance*i))
-            value.screen.blit(cost_image[value.cost[value.deck[value.make_deck_ka][i]]], (card_bar_x+2,card_bar_y+card_bar_distance*i))
+            value.screen.blit(all_cards_bar[value.deck[value.make_deck_ka][i]], (card_bar_x-10,card_bar_y+card_bar_distance*i-x2))
+            value.screen.blit(cost_image[value.cost[value.deck[value.make_deck_ka][i]]], (card_bar_x+2,card_bar_y+card_bar_distance*i-x2))
         else:
-            value.screen.blit(all_cards_bar[value.deck[value.make_deck_ka][i]], (card_bar_x,card_bar_y+card_bar_distance*i))
-            value.screen.blit(cost_image[value.cost[value.deck[value.make_deck_ka][i]]], (card_bar_x+12,card_bar_y+card_bar_distance*i))
+            value.screen.blit(all_cards_bar[value.deck[value.make_deck_ka][i]], (card_bar_x,card_bar_y+card_bar_distance*i-x2))
+            value.screen.blit(cost_image[value.cost[value.deck[value.make_deck_ka][i]]], (card_bar_x+12,card_bar_y+card_bar_distance*i-x2))
 
-    value.screen.blit(white_sq, (black_sqx,black_sqy))
+    value.screen.blit(white_sq, (black_sqx,black_sqy-x2))
 
     #戻る　保存
     frame1_rect=frame1.get_rect(topleft=(frame1x+back_frame, frame1y))
@@ -232,7 +255,7 @@ def make():
     else:
         mouse_check_deck=0
 
-    value.screen.blit(deck[value.deckcolor[value.make_deck_ka]], (deckx+math.sin(mouse_check_deck_time*math.pi/2.5)*mouse_check_deck_time/5,decky+(4-abs(2-deck_push)*2)))
+    value.screen.blit(deck[value.deckcolor[value.make_deck_ka]], (deckx+math.sin(mouse_check_deck_time*math.pi/2.5)*mouse_check_deck_time/5,decky+(4-abs(2-deck_push)*2-x2)))
 
     if deck_change:
             value.screen.blit(frame3, (frame3x,frame3y))
@@ -249,28 +272,40 @@ def make():
     j=160
     cards_select=-1
     for i in range(3):
-        value.screen.blit(all_cards_image[11+i],(50+140*i,50))
+        if 4>value.deck[value.make_deck_ka].count(11+i):
+            value.screen.blit(all_cards_image[11+i],(50+140*i,50))
+        else:
+            value.screen.blit(all_cards_image[11+i+50],(50+140*i,50))
         value.screen.blit(cost_image[value.cost[11+i]],(50+140*i,50))
         cards_rect=all_cards_image[11].get_rect(topleft=(50+140*i,50))
         if cards_rect.collidepoint(pygame.mouse.get_pos()):
             cards_select=11+i
             detail(11+i,detailx,detaily)
     for i in range(5):
-        value.screen.blit(all_cards_image[21+i],(50+140*i,50+j))
+        if 4>value.deck[value.make_deck_ka].count(21+i):
+            value.screen.blit(all_cards_image[21+i],(50+140*i,50+j))
+        else:
+            value.screen.blit(all_cards_image[21+i+50],(50+140*i,50+j))
         value.screen.blit(cost_image[value.cost[21+i]],(50+140*i,50+j))
         cards_rect=all_cards_image[11].get_rect(topleft=(50+140*i,50+j))
         if cards_rect.collidepoint(pygame.mouse.get_pos()):
             cards_select=21+i
             detail(21+i,detailx,detaily)
     for i in range(3):
-        value.screen.blit(all_cards_image[31+i],(50+140*i,50+j*2))
+        if 4>value.deck[value.make_deck_ka].count(31+i):
+            value.screen.blit(all_cards_image[31+i],(50+140*i,50+j*2))
+        else:
+            value.screen.blit(all_cards_image[31+i+50],(50+140*i,50+j*2))
         value.screen.blit(cost_image[value.cost[31+i]],(50+140*i,50+j*2))
         cards_rect=all_cards_image[11].get_rect(topleft=(50+140*i,50+j*2))
         if cards_rect.collidepoint(pygame.mouse.get_pos()):
             cards_select=31+i
             detail(31+i,detailx,detaily)
     for i in range(5):
-        value.screen.blit(all_cards_image[41+i],(50+140*i,50+j*3))
+        if 4>value.deck[value.make_deck_ka].count(41+i):
+            value.screen.blit(all_cards_image[41+i],(50+140*i,50+j*3))
+        else:
+            value.screen.blit(all_cards_image[41+i+50],(50+140*i,50+j*3))
         value.screen.blit(cost_image[value.cost[41+i]],(50+140*i,50+j*3))
         cards_rect=all_cards_image[11].get_rect(topleft=(50+140*i,50+j*3))
         if cards_rect.collidepoint(pygame.mouse.get_pos()):
@@ -299,13 +334,15 @@ def make():
                     value.nextstep=-1
                     value.fade_out=True
                     value.fade_in=False
+                    value.deck[value.make_deck_ka]=value.hold_deck[:]
                 if frame2_rect.collidepoint(pygame.mouse.get_pos()):
                     value.nextstep=-1
                     value.fade_out=True
                     value.fade_in=False
+                    save_load.save(value.make_deck_ka)
                 if collide>=0:
                     del value.deck[value.make_deck_ka][collide]
-                if cards_select>=0 and len(value.deck[value.make_deck_ka])<20:
+                if cards_select>=0 and len(value.deck[value.make_deck_ka])<20 and 4>value.deck[value.make_deck_ka].count(cards_select):
                     value.deck[value.make_deck_ka].append(cards_select)
                     value.deck[value.make_deck_ka].sort()
 
@@ -342,7 +379,7 @@ def make():
     for i in range(5):
         if mouse_check_make_deck_time[i]>0:mouse_check_make_deck_time[i]-=1
     
-    value.t=pygame.time.get_ticks()
+    value.t+=1
     pygame.display.update()
 
     pygame.time.delay(30)

@@ -582,9 +582,9 @@ def menu2():
                 mouse_check_change_deck[i]=0
             value.screen.blit(deck[value.deckcolor[i]], (make_deckx[i]+math.sin(mouse_check_change_deck_time[i]*math.pi/2.5)*mouse_check_change_deck_time[i]/5,make_decky-x2))
         if frame4_rect.collidepoint(pygame.mouse.get_pos()):
-            value.screen.blit(frame5,(frame4x,frame4y+x2))
+            value.screen.blit(frame5,(frame4x,frame4y-x2))
         else:
-            value.screen.blit(frame4,(frame4x,frame4y+x2))
+            value.screen.blit(frame4,(frame4x,frame4y-x2))
 
 
 
