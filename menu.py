@@ -212,6 +212,19 @@ mouse_check_change_deck_time=[0,0,0,0]
 deck_change=False
 deck_change2=False
 
+#ありなし
+ivent_size=0.6
+ivent_switch=[]
+ivent_switch.append(pygame.image.load("image/no.png").convert())
+ivent_switch.append(pygame.image.load("image/yes.png").convert())
+ivent_switch.append(pygame.image.load("image/no2.png").convert())
+ivent_switch.append(pygame.image.load("image/yes2.png").convert())
+for i in range(4):
+    ivent_switch[i].set_colorkey((255, 255, 255))
+    ivent_switch[i] = pygame.transform.scale_by(ivent_switch[i],ivent_size)
+ivent_x,ivent_y=800,500
+ivent_rect=ivent_switch[0].get_rect(topleft=(ivent_x,ivent_y))
+
 #ゲームスタート
 gamessize=1.5
 games = pygame.image.load("image/gamestart1.png").convert()
@@ -259,7 +272,7 @@ for i in range (len(menu_text_list)):
 
 back_text = font.render("戻る", True, (255, 255, 255))
 
-menu2_text_list=["初期手札","先手","デッキ","その他の設定"]
+menu2_text_list=["初期手札","先手","デッキ","イベント"]
 tab2=len(menu2_text_list)
 menu2_text=[]
 for i in range (len(menu2_text_list)):
@@ -346,6 +359,8 @@ def menu():
         
         value.screen.blit(sente[1], (deckx-100,decky-x2))
         value.screen.blit(sente[2], (deckx2-100,decky-x2))
+
+        value.screen.blit(ivent_switch[value.event_switch], (ivent_x,ivent_y-x2))
 
         value.screen.blit(deck[value.decks], (deckx,decky-x2))
         value.screen.blit(deck[value.decks], (deckx2,decky-x2))
@@ -502,14 +517,19 @@ def menu2():
     #せってい
     if value.play_number<2:
     
-        for i in range(len(menu2_text)-1):
+        for i in range(len(menu2_text)):
             value.screen.blit(menu2_text[i], (menu2x,menu2y+menu2y_distance*i-x2))
-        value.screen.blit(menu2_text[len(menu2_text)-1], (sonotax,menu2y+menu2y_distance*(len(menu2_text)-1)-x2))
         draw_arrow(arrowx1,arrowx2,arrowy-x2,arrow_push1[0],arrow_rect1[0],arrow_push2[0],arrow_rect2[0])
         draw_arrow(arrowx1,arrowx2,arrowy-x2+arrowy_distance,arrow_push1[1],arrow_rect1[1],arrow_push2[1],arrow_rect2[1])
         
         value.screen.blit(maisu[value.Startinghandsize], (maisux,maisuy-x2))
         value.screen.blit(sente[value.firstplayer], (sentex,sentey-x2))
+
+        if ivent_rect.collidepoint(pygame.mouse.get_pos()):
+            value.screen.blit(ivent_switch[value.event_switch+2], (ivent_x,ivent_y-x2))
+        else:
+            value.screen.blit(ivent_switch[value.event_switch], (ivent_x,ivent_y-x2))
+
 
 
         value.screen.blit(sente[1], (deckx-100,decky-x2))
@@ -561,7 +581,6 @@ def menu2():
                     value.screen.blit(deck[value.deckcolor[i]], (change_deckx2[i]+math.sin(mouse_check_change_deck_time[i]*math.pi/2.5)*mouse_check_change_deck_time[i]/5,change_decky))
                 else:
                     value.screen.blit(deck[value.deckcolor[i]+5], (change_deckx2[i]+math.sin(mouse_check_change_deck_time[i]*math.pi/2.5)*mouse_check_change_deck_time[i]/5,change_decky))
-
 
         if games_rect.collidepoint(pygame.mouse.get_pos()):
             value.screen.blit(games2, (gamesx,gamesy-x2))
@@ -646,6 +665,8 @@ def menu2():
                         deck_push2=4
                         mouse_check_deck_time2=0
                         deck_change2=True
+                    if ivent_rect.collidepoint(pygame.mouse.get_pos()):
+                        value.event_switch=1-value.event_switch
 
             elif value.play_number==2:
                 for i in range(tab+1):

@@ -35,6 +35,7 @@ while True:
         value.hands=[]
         value.hands2=[]
         value.firstfirst=True
+        value.nextevent=random.randint(0,3)
         if value.firstplayer==0:
             value.player=random.randint(1,2)
         else:

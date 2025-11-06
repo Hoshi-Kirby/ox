@@ -60,6 +60,7 @@ decks=0#0~3
 decks2=0
 handsize_change=[0,3,5]
 make_deck_ka=1
+event_switch=0
 
 #deck
 deck=[[11]*20,[],[],[]]
@@ -98,6 +99,13 @@ spacing2=120
 spacing_after=120
 spacing2_after=120
 detail_check=False
+
+event_turn=0
+event_turn_min=8
+event_turn_max=13
+nextevent=0
+eventnum=-1
+event_t=0
 
 winner=0
 

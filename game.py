@@ -5,6 +5,7 @@ import math
 import value
 import random
 import skillcardfunc
+import eventfunc
 pygame.init()
 
 menut=0
@@ -186,7 +187,7 @@ sturny=120
 
 #説明
 detail_image={}
-for i in (11,12,13,21,22,23,24,25,31,32,33,41,42,43,44,45):
+for i in (11,12,13,21,22,23,24,25,31,32,33,41,42,43,44,45,80,81,82,83):
     detail_image[i]=pygame.image.load(f"image/detail{i}.png").convert_alpha()
     detail_image[i].set_colorkey((255, 255, 255))
 detailx=20
@@ -195,8 +196,18 @@ detaily=250
 #イベント
 no_event=pygame.image.load("image/noevent.png").convert()
 no_event.set_colorkey((255, 255, 255))
+yes_event=pygame.image.load("image/yesevent.png").convert()
+yes_event.set_colorkey((255, 255, 255))
 no_event_y=600
 no_event= pygame.transform.scale_by(no_event,0.8)
+yes_event= pygame.transform.scale_by(yes_event,0.8)
+event_image=[]
+for i in range(3):
+    event_image.append(pygame.image.load(f"image/nextevent{i+1}.png").convert())
+    event_image[i].set_colorkey((255, 255, 255))
+    event_image[i]= pygame.transform.scale_by(event_image[i],0.8)
+
+event_rect=no_event.get_rect(topleft=(detailx,no_event_y))
 
 #文字
 ready_text=font.render("Ready?", True, (255, 255, 255))
@@ -420,7 +431,9 @@ def gameb():
     finish=False
     value.winner=0
     value.card_dcost=[0]*2
-    
+    value.event_turn=value.event_turn_max
+    value.eventnum=-1
+
     if value.firstfirst:
         menumode=False
         value.firstfirst=False
@@ -453,7 +466,15 @@ def gameb():
 
     value.screen.blit(sturn, (detailx+100,sturny))
     #イベント
-    value.screen.blit(no_event, (detailx,no_event_y))
+    if value.event_switch==0:
+        value.screen.blit(no_event, (detailx,no_event_y))
+    else:
+        if value.event_turn>6:
+            value.screen.blit(yes_event, (detailx,no_event_y))
+        else:
+            value.screen.blit(event_image[math.floor((value.event_turn-1)/2)], (detailx,no_event_y))
+        if event_rect.collidepoint(pygame.mouse.get_pos()):
+            detail(80+value.nextevent,detailx,detaily)
 
     value.screen.blit(line2,(detailx-50,line2y))
     value.screen.blit(line2,(detailx-50,line2y+line2yy))
@@ -658,7 +679,15 @@ def game():
     value.screen.blit(token[value.player-1], (detailx,sturny))
     value.screen.blit(sturn, (detailx+100,sturny))
     
-    value.screen.blit(no_event, (detailx,no_event_y))
+    if value.event_switch==0:
+        value.screen.blit(no_event, (detailx,no_event_y))
+    else:
+        if value.event_turn>6:
+            value.screen.blit(yes_event, (detailx,no_event_y))
+        else:
+            value.screen.blit(event_image[math.floor((value.event_turn-1)/2)], (detailx,no_event_y))
+        if event_rect.collidepoint(pygame.mouse.get_pos()):
+            detail(80+value.nextevent,detailx,detaily)
 
     value.screen.blit(line2,(detailx-50,line2y))
     value.screen.blit(line2,(detailx-50,line2y+line2yy))
@@ -917,8 +946,16 @@ def change():
         value.screen.blit(token[value.player-1], (detailx,sturny))
     value.screen.blit(sturn, (detailx+100,sturny))
     
-    value.screen.blit(no_event, (detailx,no_event_y))
-    
+    if value.event_switch==0:
+        value.screen.blit(no_event, (detailx,no_event_y))
+    else:
+        if value.event_turn>6:
+            value.screen.blit(yes_event, (detailx,no_event_y))
+        else:
+            value.screen.blit(event_image[math.floor((value.event_turn-1)/2)], (detailx,no_event_y))
+        if event_rect.collidepoint(pygame.mouse.get_pos()):
+            detail(80+value.nextevent,detailx,detaily)
+        
     value.screen.blit(line2,(detailx-50,line2y))
     value.screen.blit(line2,(detailx-50,line2y+line2yy))
     
@@ -968,16 +1005,16 @@ def change():
         if card_select_any==j:
             y-=10
         cardnumber=value.deck[value.decks][i]
-        if value.player==1:
+        if value.player==1 or value.eventnum==0:
             if j==len(value.hands):
-                value.screen.blit(all_cards_image[cardnumber], (x2 + j * value.spacing, y))
-                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (x2 + j * value.spacing, y))
+                value.screen.blit(all_cards_image[cardnumber], (x2+value.card_dx[0][j] + j * value.spacing, y))
+                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (x2+value.card_dx[0][j] + j * value.spacing, y))
             else:
-                value.screen.blit(all_cards_image[cardnumber], (x + j * value.spacing, y))
-                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (x + j * value.spacing, y))
+                value.screen.blit(all_cards_image[cardnumber], (x+value.card_dx[0][j] + j * value.spacing, y))
+                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (x+value.card_dx[0][j] + j * value.spacing, y))
         else:
-            value.screen.blit(all_cards_image[cardnumber], (cardx+j * value.spacing, y))
-            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (cardx+j * value.spacing, y))
+            value.screen.blit(all_cards_image[cardnumber], (cardx+value.card_dx[0][j]+j * value.spacing, y))
+            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (cardx+value.card_dx[0][j]+j * value.spacing, y))
         j+=1
 
     card_select_any=-1
@@ -998,16 +1035,16 @@ def change():
         if card_select_any==j:
             y+=10
         cardnumber=value.deck[value.decks2][i]
-        if value.player==2:
+        if value.player==2 or value.eventnum==0:
             if j==len(value.hands2):
-                value.screen.blit(all_cards_image[cardnumber], (x4 + j * value.spacing2, y))
-                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (x4 + j * value.spacing2, y))
+                value.screen.blit(all_cards_image[cardnumber], (x4+value.card_dx[1][j] + j * value.spacing2, y))
+                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (x4+value.card_dx[1][j] + j * value.spacing2, y))
             else:
-                value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (x3 + j * value.spacing2, y))
-                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (x3 + j * value.spacing2, y))
+                value.screen.blit(all_cards_image[cardnumber], (x3+value.card_dx[1][j] + j * value.spacing2, y))
+                value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (x3+value.card_dx[1][j] + j * value.spacing2, y))
         else:
-            value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (cardx2 + j * value.spacing2, y))
-            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (cardx2 + j * value.spacing2, y))
+            value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))
+            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))
         j+=1
 
     
@@ -1034,7 +1071,11 @@ def change():
         value.spacing2=50
     
     if value.t>60:
+        value.eventnum=-1
         value.gamestep=1
+        
+        value.card_dx=[[0]*10,[0]*10]
+        value.card_dy=[[0]*10,[0]*10]
 
     if value.t==1 or ((not first) and value.t==40):
         if value.player==1:
@@ -1047,9 +1088,21 @@ def change():
                 handsadd(2,value.decks2,1)
                 cardx_move=10
                 cardx_move2=30
+        if value.eventnum==0:
+            if value.player==2:
+                if len(value.hands)<10:
+                    handsadd(1,value.decks,1)
+                    cardx_move=10
+                    cardx_move2=30
+            else:
+                if len(value.hands2)<10:
+                    handsadd(2,value.decks2,1)
+                    cardx_move=10
+                    cardx_move2=30
+
 
     #一度だけ
-    if value.t==40:
+    if value.t==59:
         first=False
         value.card_dy=[[0]*10,[0]*10]
         card_dcost_mode=False
@@ -1103,7 +1156,16 @@ def change():
                     for j in range(5):
                         value.board2[3][j]=0
                 value.block[i]=-1
-                
+
+        value.event_turn-=1
+        if value.event_turn==0:
+            eventfunc.event(value.nextevent)
+            value.event_turn=random.randint(value.event_turn_min,value.event_turn_max+1)
+            value.nextevent=random.randint(0,3)
+    
+    if value.eventnum>0:
+        eventfunc.eventfunc(value.eventnum)
+
 
     if (value.card_dcost[2-value.player]!=0 or card_dcost_mode)and value.t<40:
         for i in range(10):
@@ -1156,7 +1218,15 @@ def skillbase():
     value.screen.blit(token[value.player-1], (detailx,sturny))
     value.screen.blit(sturn, (detailx+100,sturny))
     
-    value.screen.blit(no_event, (detailx,no_event_y))
+    if value.event_switch==0:
+        value.screen.blit(no_event, (detailx,no_event_y))
+    else:
+        if value.event_turn>6:
+            value.screen.blit(yes_event, (detailx,no_event_y))
+        else:
+            value.screen.blit(event_image[math.floor((value.event_turn-1)/2)], (detailx,no_event_y))
+        if event_rect.collidepoint(pygame.mouse.get_pos()):
+            detail(80+value.nextevent,detailx,detaily)
 
     value.screen.blit(line2,(detailx-50,line2y))
     value.screen.blit(line2,(detailx-50,line2y+line2yy))

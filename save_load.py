@@ -86,8 +86,6 @@ def load(slot):
     value.deck[slot] = list(row[2:])
 
     conn.close()
-    print("row:", row)
-    print("slot:", slot)
 
 
 
