@@ -96,6 +96,8 @@ def handeath():
         else:
             value.card_dx[1][i]=(card_x_after[1][i]-card_x_before[1][i])/20*(20-card_move_time)
     if card_move_time==0:
+        value.card_dx=[[0]*10,[0]*10]
+        value.card_dy=[[0]*10,[0]*10]
         value.eventnum=-1
     if card_move_time>0:card_move_time-=1
 

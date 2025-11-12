@@ -469,10 +469,10 @@ def gameb():
     if value.event_switch==0:
         value.screen.blit(no_event, (detailx,no_event_y))
     else:
-        if value.event_turn>6:
+        if value.event_turn>3:
             value.screen.blit(yes_event, (detailx,no_event_y))
         else:
-            value.screen.blit(event_image[math.floor((value.event_turn-1)/2)], (detailx,no_event_y))
+            value.screen.blit(event_image[value.event_turn-1], (detailx,no_event_y))
         if event_rect.collidepoint(pygame.mouse.get_pos()):
             detail(80+value.nextevent,detailx,detaily)
 
@@ -485,8 +485,8 @@ def gameb():
         y=0
     value.screen.blit(black_pekin,(black_x+y,black_y-y))
     value.screen.blit(black_pekin,(black_x2+y,black_y2+y))
-    value.screen.blit(token[0],(omaix,xmaiy))
-    value.screen.blit(token[1],(omaix,omaiy))
+    value.screen.blit(token[1],(omaix,xmaiy))
+    value.screen.blit(token[0],(omaix,omaiy))
     value.screen.blit(rest,(restx,omaiy))
     value.screen.blit(rest,(restx,xmaiy))
     if len(value.hands2)==0:
@@ -682,10 +682,10 @@ def game():
     if value.event_switch==0:
         value.screen.blit(no_event, (detailx,no_event_y))
     else:
-        if value.event_turn>6:
+        if value.event_turn>3:
             value.screen.blit(yes_event, (detailx,no_event_y))
         else:
-            value.screen.blit(event_image[math.floor((value.event_turn-1)/2)], (detailx,no_event_y))
+            value.screen.blit(event_image[value.event_turn-1], (detailx,no_event_y))
         if event_rect.collidepoint(pygame.mouse.get_pos()):
             detail(80+value.nextevent,detailx,detaily)
 
@@ -697,8 +697,8 @@ def game():
 
     value.screen.blit(black_pekin,(black_x,black_y))
     value.screen.blit(black_pekin,(black_x2,black_y2))
-    value.screen.blit(token[0],(omaix,xmaiy))
-    value.screen.blit(token[1],(omaix,omaiy))
+    value.screen.blit(token[1],(omaix,xmaiy))
+    value.screen.blit(token[0],(omaix,omaiy))
     value.screen.blit(rest,(restx,omaiy))
     value.screen.blit(rest,(restx,xmaiy))
     if len(value.hands2)==0:
@@ -808,6 +808,8 @@ def game():
                 if turnend_rect.collidepoint(pygame.mouse.get_pos()):
                     value.player = 2 if value.player == 1 else 1
                     value.gamestep=2
+                    value.card_dx=[[0]*10,[0]*10]
+                    value.card_dy=[[0]*10,[0]*10]
                     value.t=0
                 if card_select>=0:
                     if (value.player==1 and len(value.hands)>value.cost[value.deck[value.decks][value.hands[card_select]]]+value.card_dcost[0]) or (value.player==2 and len(value.hands2)>value.cost[value.deck[value.decks2][value.hands2[card_select]]]+value.card_dcost[1]):
@@ -949,10 +951,10 @@ def change():
     if value.event_switch==0:
         value.screen.blit(no_event, (detailx,no_event_y))
     else:
-        if value.event_turn>6:
+        if value.event_turn>3:
             value.screen.blit(yes_event, (detailx,no_event_y))
         else:
-            value.screen.blit(event_image[math.floor((value.event_turn-1)/2)], (detailx,no_event_y))
+            value.screen.blit(event_image[value.event_turn-1], (detailx,no_event_y))
         if event_rect.collidepoint(pygame.mouse.get_pos()):
             detail(80+value.nextevent,detailx,detaily)
         
@@ -963,8 +965,8 @@ def change():
 
     value.screen.blit(black_pekin,(black_x,black_y))
     value.screen.blit(black_pekin,(black_x2,black_y2))
-    value.screen.blit(token[0],(omaix,xmaiy))
-    value.screen.blit(token[1],(omaix,omaiy))
+    value.screen.blit(token[1],(omaix,xmaiy))
+    value.screen.blit(token[0],(omaix,omaiy))
     value.screen.blit(rest,(restx,omaiy))
     value.screen.blit(rest,(restx,xmaiy))
     if len(value.hands2)==0:
@@ -1014,7 +1016,7 @@ def change():
                 value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (x+value.card_dx[0][j] + j * value.spacing, y))
         else:
             value.screen.blit(all_cards_image[cardnumber], (cardx+value.card_dx[0][j]+j * value.spacing, y))
-            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (cardx+value.card_dx[0][j]+j * value.spacing, y))
+            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (cardx+value.card_dx[0][j]+j * value.spacing, y))
         j+=1
 
     card_select_any=-1
@@ -1043,8 +1045,8 @@ def change():
                 value.screen.blit(all_cards_image[cardnumber], (x3+value.card_dx[1][j] + j * value.spacing2, y))
                 value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (x3+value.card_dx[1][j] + j * value.spacing2, y))
         else:
-            value.screen.blit(all_cards_image[value.deck[value.decks2][i]], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))
-            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))
+            value.screen.blit(all_cards_image[cardnumber], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))
+            value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))
         j+=1
 
     
@@ -1073,9 +1075,6 @@ def change():
     if value.t>60:
         value.eventnum=-1
         value.gamestep=1
-        
-        value.card_dx=[[0]*10,[0]*10]
-        value.card_dy=[[0]*10,[0]*10]
 
     if value.t==1 or ((not first) and value.t==40):
         if value.player==1:
@@ -1157,7 +1156,8 @@ def change():
                         value.board2[3][j]=0
                 value.block[i]=-1
 
-        value.event_turn-=1
+        if value.event_switch==1:
+            value.event_turn-=1
         if value.event_turn==0:
             eventfunc.event(value.nextevent)
             value.event_turn=random.randint(value.event_turn_min,value.event_turn_max+1)
@@ -1221,10 +1221,10 @@ def skillbase():
     if value.event_switch==0:
         value.screen.blit(no_event, (detailx,no_event_y))
     else:
-        if value.event_turn>6:
+        if value.event_turn>3:
             value.screen.blit(yes_event, (detailx,no_event_y))
         else:
-            value.screen.blit(event_image[math.floor((value.event_turn-1)/2)], (detailx,no_event_y))
+            value.screen.blit(event_image[value.event_turn-1], (detailx,no_event_y))
         if event_rect.collidepoint(pygame.mouse.get_pos()):
             detail(80+value.nextevent,detailx,detaily)
 

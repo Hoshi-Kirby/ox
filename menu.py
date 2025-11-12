@@ -3,6 +3,7 @@ import sys
 import math
 
 import value
+import help
 
 pygame.init()
 
@@ -87,9 +88,9 @@ for i in range(4):
     arrow[i].set_alpha(255)
 for i in range(4):
     arrow.append(pygame.transform.flip(arrow[i], True, False))
-arrowx1,arrowx2,arrowy,arrowy_distance=700,1000,200,100
-arrow_rect1=[arrow[4].get_rect(topleft=(arrowx1, arrowy)),arrow[4].get_rect(topleft=(arrowx1, arrowy+arrowy_distance))]
-arrow_rect2=[arrow[0].get_rect(topleft=(arrowx2, arrowy)),arrow[0].get_rect(topleft=(arrowx2, arrowy+arrowy_distance))]
+arrowx1,arrowx2,arrowy,arrowy_help,arrowy_distance=700,1000,200,650,100
+arrow_rect1=[arrow[4].get_rect(topleft=(arrowx1, arrowy)),arrow[4].get_rect(topleft=(arrowx1, arrowy+arrowy_distance)),arrow[4].get_rect(topleft=(arrowx1, arrowy_help))]
+arrow_rect2=[arrow[0].get_rect(topleft=(arrowx2, arrowy)),arrow[0].get_rect(topleft=(arrowx2, arrowy+arrowy_distance)),arrow[0].get_rect(topleft=(arrowx2, arrowy_help))]
 arrow_push1=[0,0]
 arrow_push2=[0,0]
 
@@ -264,7 +265,7 @@ def draw_sq(i,dy, alpha):
 font =pygame.font.SysFont("Meiryo UI", 36)
 
 #文字
-menu_text_list=["ひとりで","ふたりで","ヘルプ","デッキ編成"]
+menu_text_list=["  ひとりで","  ふたりで","   ヘルプ","デッキ編成"]
 tab=len(menu_text_list)
 menu_text=[]
 for i in range (len(menu_text_list)):
@@ -323,7 +324,7 @@ def menu():
     for i in range(tab):
         x ,y= framex + i * frame_distance / 2.8 + frame_move[i]*frame_move_s+moveto1*move_distance*(framemove_distance)/move_time, framey + i * frame_distance
         value.screen.blit(frame, (x,y))
-        value.screen.blit(menu_text[i], (x+110,y+15))
+        value.screen.blit(menu_text[i], (x+90,y+15))
         frame_rect.append(frame.get_rect(topleft=(x, y)))
         if frame_rect[i].collidepoint(pygame.mouse.get_pos()):
             if frame_move[i]<frame_move_max:
@@ -368,6 +369,9 @@ def menu():
             value.screen.blit(games2, (gamesx,gamesy-x2))
         else:
             value.screen.blit(games, (gamesx,gamesy-x2))
+    #説明
+    elif value.play_number==2:
+        help.help(0,x2,0)
     #デッキ作成
 
     elif value.play_number==3:
@@ -489,7 +493,7 @@ def menu2():
             x ,y= framex + i * frame_distance / 2.8 + frame_move[i]*frame_move_s+(move_time-moveto2)*move_distance*(framemove_distance)/move_time, framey + i * frame_distance
         
         value.screen.blit(frame, (x,y))
-        value.screen.blit(menu_text[i], (x+110,y+15))
+        value.screen.blit(menu_text[i], (x+90,y+15))
         frame_rect.append(frame.get_rect(topleft=(x, y)))
         if value.play_number==i:
             if frame_move[i]<frame_move_max:
@@ -587,6 +591,11 @@ def menu2():
         else:
             value.screen.blit(games, (gamesx,gamesy-x2))
 
+    #説明
+    elif value.play_number==2:
+        help.help(value.help_page,0,-x2)
+        draw_arrow(arrowx1,arrowx2,arrowy_help-x2,arrow_push1[0],arrow_rect1[2],arrow_push2[0],arrow_rect2[2])
+    
     #デッキ作成
     elif value.play_number==3:
         
@@ -667,7 +676,6 @@ def menu2():
                         deck_change2=True
                     if ivent_rect.collidepoint(pygame.mouse.get_pos()):
                         value.event_switch=1-value.event_switch
-
             elif value.play_number==2:
                 for i in range(tab+1):
                     if frame_rect[i].collidepoint(pygame.mouse.get_pos()):
@@ -677,6 +685,11 @@ def menu2():
                                 moveto1=move_time-moveto2
                             case _:
                                 pass
+                if arrow_rect1[2].collidepoint(pygame.mouse.get_pos()):
+                    arrow_push1[0]=5
+                    if value.help_page>0:value.help_page-=1
+                if arrow_rect2[2].collidepoint(pygame.mouse.get_pos()):
+                    arrow_push2[0]=5
 
             elif value.play_number==3:
                 for i in range(tab+1):
