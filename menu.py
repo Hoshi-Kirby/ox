@@ -371,7 +371,7 @@ def menu():
             value.screen.blit(games, (gamesx,gamesy-x2))
     #説明
     elif value.play_number==2:
-        help.help(0,x2,0)
+        help.help(0,0,-x2)
     #デッキ作成
 
     elif value.play_number==3:
@@ -690,6 +690,8 @@ def menu2():
                     if value.help_page>0:value.help_page-=1
                 if arrow_rect2[2].collidepoint(pygame.mouse.get_pos()):
                     arrow_push2[0]=5
+                    if value.help_page<5:value.help_page+=1
+
 
             elif value.play_number==3:
                 for i in range(tab+1):

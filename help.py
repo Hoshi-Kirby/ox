@@ -9,16 +9,20 @@ pygame.init()
 white=(255,255,255)
 
 helppicture={}
-for i in (1,1):
-    helppicsize=0.5
+helppicsize=[1,0.46,0.6]
+for i in (1,2):
     helppicture[i] = pygame.image.load(f"image/helppic{i}.png").convert()
-    helppicture[i]= pygame.transform.scale_by(helppicture[i],helppicsize)
+    helppicture[i]= pygame.transform.scale_by(helppicture[i],helppicsize[i])
     helppicture[i].set_colorkey((0,0,0))
 
 
 helptext=[]
-helptext.append("このゲームは○×ゲームです。カードを駆使して自分のマークを縦、横、斜めのいずれかに揃えたら勝ちとなります。")
-
+helptext.append("このゲームはカードゲームと○×ゲームを組み合わせたゲームです。カードを駆使して自分のマークを縦、横、斜めのいずれかに揃えたら勝ちとなります。")
+helptext.append("「ひとりで」と「ふたりで」はどちらも二人で遊ぶモードです。「デッキ編成」は自分で好きなデッキを編成して、ゲームで使うことができます。")
+helptext.append("上の図がゲーム画面と名称です。")
+helptext.append("上の図はこのゲームで使用するカードの図です。カードにはコストと属性がありますが、タイプ相性はないので属性は関係ないです。カーどの効果は、ゲーム中のウィンドウに表示されます。")
+helptext.append("自分のターンでは、まずカードを２枚引きます。（先攻１ターン目は引かない、後攻１ターン目は１枚のみ）使用するカードを選択し、使用するカードとは別にコストの数分のカードを山札に戻します。使用したカードも山札に戻ります。")
+helptext.append("カードは１ターンに何枚も使用することができ、使用しないこともできます。")
 
 
 font =pygame.font.SysFont("Meiryo UI", 36)
@@ -46,7 +50,7 @@ def draw_text_wrapped(surface, text, font, color, rect, line_spacing=5):
     total_height = len(lines) * line_height + (len(lines) - 1) * line_spacing
 
     # 最初の行のY座標を調整
-    y = 280 - total_height // 2
+    y = rect.top
 
     for line in lines:
         rendered = font.render(line, False, color)
@@ -62,3 +66,20 @@ def help(page,xx,yy):
         case 0:
             x,y,wx,wy=500,200,700,500
             draw_text_wrapped(value.screen, helptext[0], font, white,pygame.Rect(x+xx,y+yy,wx,wy))
+        case 1:
+            x,y,wx,wy=500,200,700,500
+            draw_text_wrapped(value.screen, helptext[1], font, white,pygame.Rect(x+xx,y+yy,wx,wy))
+        case 2:
+            x,y,wx,wy=500,500,700,500
+            draw_text_wrapped(value.screen, helptext[2], font, white,pygame.Rect(x+xx,y+yy,wx,wy))
+            value.screen.blit(helppicture[1], (380,-20))
+        case 3:
+            x,y,wx,wy=500,300,700,500
+            draw_text_wrapped(value.screen, helptext[3], font, white,pygame.Rect(x+xx,y+yy,wx,wy))
+            value.screen.blit(helppicture[2], (690,20))
+        case 4:
+            x,y,wx,wy=500,200,700,700
+            draw_text_wrapped(value.screen, helptext[4], font, white,pygame.Rect(x+xx,y+yy,wx,wy))
+        case 5:
+            x,y,wx,wy=500,200,700,700
+            draw_text_wrapped(value.screen, helptext[5], font, white,pygame.Rect(x+xx,y+yy,wx,wy))
