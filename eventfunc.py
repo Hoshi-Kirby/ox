@@ -55,8 +55,14 @@ def handeath():
         card_move_time=20
         j=0
         card_select_base=[]
-        card_select_base.append(random.randint(0,len(value.hands)))
-        card_select_base.append(random.randint(0,len(value.hands2)))
+        if len(value.hands)>0:
+            card_select_base.append(random.randint(0,len(value.hands)-1))
+        else:
+            card_select_base.append(-1)
+        if len(value.hands2)>0:
+            card_select_base.append(random.randint(0,len(value.hands2)-1))
+        else:
+            card_select_base.append(-1)
         #カード間隔
         if len(value.hands)-1<6:
             value.spacing_after=120

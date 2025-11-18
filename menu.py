@@ -7,6 +7,8 @@ import help
 
 pygame.init()
 
+maxpage=7
+
 #壁紙
 pekin2 = pygame.image.load("image/neon_city3.png").convert()
 original_width2, original_height2 = pekin2.get_size()
@@ -286,6 +288,7 @@ sonota_rect= menu2_text[len(menu2_text_list)-1].get_rect(topleft=(sonotax,menu2y
 deckselect_text = font.render("編集するデッキを選択してください", True, (255, 255, 255))
 deckselect_textx,deckselect_texty=500,200
 
+page_textx=900
 
 #フレームムーブ
 frame_move=[0]*(tab+1)
@@ -372,6 +375,10 @@ def menu():
     #説明
     elif value.play_number==2:
         help.help(0,0,-x2)
+        draw_arrow(arrowx1,arrowx2,arrowy_help-x2,arrow_push1[0],arrow_rect1[2],arrow_push2[0],arrow_rect2[2])
+        page_text = font.render(f"{value.help_page+1}/{maxpage+1}", True, (255, 255, 255))
+        text_width = page_text.get_width()
+        value.screen.blit(page_text,(page_textx-text_width,arrowy_help-x2))
     #デッキ作成
 
     elif value.play_number==3:
@@ -595,6 +602,10 @@ def menu2():
     elif value.play_number==2:
         help.help(value.help_page,0,-x2)
         draw_arrow(arrowx1,arrowx2,arrowy_help-x2,arrow_push1[0],arrow_rect1[2],arrow_push2[0],arrow_rect2[2])
+        
+        page_text = font.render(f"{value.help_page+1}/{maxpage+1}", True, (255, 255, 255))
+        text_width = page_text.get_width()
+        value.screen.blit(page_text,(page_textx-text_width,arrowy_help-x2))
     
     #デッキ作成
     elif value.play_number==3:
@@ -690,7 +701,7 @@ def menu2():
                     if value.help_page>0:value.help_page-=1
                 if arrow_rect2[2].collidepoint(pygame.mouse.get_pos()):
                     arrow_push2[0]=5
-                    if value.help_page<5:value.help_page+=1
+                    if value.help_page<maxpage:value.help_page+=1
 
 
             elif value.play_number==3:
