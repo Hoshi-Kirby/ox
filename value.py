@@ -112,3 +112,6 @@ winner=0
 
 #make
 hold_deck=[]
+
+#BGM
+bgm_track=0

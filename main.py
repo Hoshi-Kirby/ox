@@ -9,25 +9,32 @@ import menu
 import gameset
 import make
 import save_load
+import soundplay
 pygame.init()
-
 value.player = 1
 value.game_over = False
 for i in range(1,4):
     save_load.load(i)
 while True:
+    if value.step==0:
+        soundplay.bgmplay(1)
     while value.step==0:
         title.title()
+
+    if value.step==1:
+        soundplay.bgmplay(2)
     while value.step==1:
         if value.menustep==0:
             menu.menu()
         if value.menustep==1:
             menu.menu2()
+
     if value.step==2:
         value.t=0
         value.hold_deck=value.deck[value.make_deck_ka][:]
     while value.step==2:
         make.make()
+
     if value.step==4:
         value.gamereset=False
         value.t=0
@@ -40,6 +47,7 @@ while True:
             value.player=random.randint(1,2)
         else:
             value.player=value.firstplayer
+        soundplay.bgmplay(3)
     while value.step==4 and (not value.gamereset):
         if value.gamestep==0:
             game.gameb()

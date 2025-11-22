@@ -240,9 +240,10 @@ gamesx,gamesy=600,600
 games_rect=games.get_rect(topleft=(gamesx,gamesy))
 
 setumei=[]
+setumeisize=1.2
 for i in range(4):
     setumei.append(pygame.image.load(f"image/1{i+1}.png").convert())
-    setumei[i] = pygame.transform.scale_by(setumei[i],1)
+    setumei[i] = pygame.transform.scale_by(setumei[i],setumeisize)
     setumei[i].set_colorkey((255, 255, 255))
 
 #四角
