@@ -4,10 +4,16 @@ import math
 
 import value
 import help
+import soundplay
 
 pygame.init()
 
 maxpage=7
+collide_first=[0]*20
+arrow_collide_first_x=0
+arrow_collide_first_y=0
+hold_t=0
+all_arrow_collide_ch=0
 
 #壁紙
 pekin2 = pygame.image.load("image/neon_city3.png").convert()
@@ -97,11 +103,15 @@ arrow_push1=[0,0]
 arrow_push2=[0,0]
 
 def draw_arrow(x,x2,y,arrow_push1,arrow_rect1,arrow_push2,arrow_rect2):
+    global hold_t
+    global all_arrow_collide_ch
     a=0
     if arrow_push1>0:
         a+=1
     if arrow_rect1.collidepoint(pygame.mouse.get_pos()):
         a+=2
+        se_arrow_collide(2,x,y)
+        all_arrow_collide_ch=1
     value.screen.blit(arrow[4+a], (x,y))
     
     a=0
@@ -109,7 +119,15 @@ def draw_arrow(x,x2,y,arrow_push1,arrow_rect1,arrow_push2,arrow_rect2):
         a+=1
     if arrow_rect2.collidepoint(pygame.mouse.get_pos()):
         a+=2
+        se_arrow_collide(2,x2,y)
+        all_arrow_collide_ch=1
     value.screen.blit(arrow[a], (x2,y))
+
+    if hold_t!=value.t:
+        if all_arrow_collide_ch==0:
+            se_arrow_collide_reset()
+        all_arrow_collide_ch=0
+    hold_t=value.t
 
 #使えないかも下線
 linesize=1
@@ -256,6 +274,23 @@ def draw_sq(i,dy, alpha):
     sq2.set_alpha(alpha)
     value.screen.blit(sq2, (make_deckx[i],make_decky+dy))
 
+def se_collide(i,n):
+    global collide_first
+    if collide_first[n]==1:
+        soundplay.se_play(i)
+        collide_first[n]=0
+
+def se_arrow_collide(i,x,y):
+    global arrow_collide_first_x
+    global arrow_collide_first_y
+    if arrow_collide_first_x != x or arrow_collide_first_y != y:
+        soundplay.se_play(i)
+        arrow_collide_first_x,arrow_collide_first_y=x,y
+def se_arrow_collide_reset():
+    global arrow_collide_first_x
+    global arrow_collide_first_y
+    arrow_collide_first_x=0
+    arrow_collide_first_y=0
 
 
 
@@ -309,6 +344,7 @@ def menu():
     global moveto2
     global arrow_push1
     global arrow_push2
+    global collide_first
 
     #壁紙
     value.screen.blit(pekin2, (widhe_skew2,0))
@@ -334,9 +370,11 @@ def menu():
             if frame_move[i]<frame_move_max:
                 frame_move[i]+=1
             value.screen.blit(setumei[i], (600,200))
+            se_collide(2,10+i)
         else:
             if frame_move[i]>0:
                 frame_move[i]-=1
+            collide_first[10+i]=1
 
     #もどる
     x,y=backx+frame_move[tab]*frame_move_s,backy
@@ -346,9 +384,11 @@ def menu():
     if frame_rect[tab].collidepoint(pygame.mouse.get_pos()):
         if frame_move[tab]<frame_move_max:
             frame_move[tab]+=1
+        se_collide(2,1)
     else:
         if frame_move[tab]>0:
             frame_move[tab]-=1
+        collide_first[1]=1
 
     #せってい
     
@@ -411,10 +451,12 @@ def menu():
                             value.fade_out = True
                             value.fade_in = False
                             value.nextstep=-1
+                            soundplay.se_play(3)
                         case (0 | 1 | 2 | 3):
                             value.menustep=1
                             moveto2=move_time+moveto1
                             value.play_number=i
+                            soundplay.se_play(0)
 
 
                             
@@ -520,9 +562,11 @@ def menu2():
     if frame_rect[tab].collidepoint(pygame.mouse.get_pos()):
         if frame_move[tab]<frame_move_max:
             frame_move[tab]+=1
+        se_collide(2,0)
     else:
         if frame_move[tab]>0:
             frame_move[tab]-=1
+        collide_first[0]=1
 
 
 
@@ -539,8 +583,10 @@ def menu2():
 
         if ivent_rect.collidepoint(pygame.mouse.get_pos()):
             value.screen.blit(ivent_switch[value.event_switch+2], (ivent_x,ivent_y-x2))
+            se_collide(2,1)
         else:
             value.screen.blit(ivent_switch[value.event_switch], (ivent_x,ivent_y-x2))
+            collide_first[1]=1
 
 
 
@@ -553,16 +599,20 @@ def menu2():
                 mouse_check_deck_time=10
             mouse_check_deck=1
             value.screen.blit(change, (changex,changey))
+            se_collide(2,2)
         else:
             mouse_check_deck=0
+            collide_first[2]=1
         
         if deck_rect2.collidepoint(pygame.mouse.get_pos()):
             if mouse_check_deck2==0:
                 mouse_check_deck_time2=10
             mouse_check_deck2=1
             value.screen.blit(change, (changex2,changey))
+            se_collide(2,3)
         else:
             mouse_check_deck2=0
+            collide_first[3]=1
         
         value.screen.blit(deck[value.deckcolor[value.decks]], (deckx+math.sin(mouse_check_deck_time*math.pi/2.5)*mouse_check_deck_time/5,decky-x2+(4-abs(2-deck_push)*2)))
         value.screen.blit(deck[value.deckcolor[value.decks2]], (deckx2+math.sin(mouse_check_deck_time2*math.pi/2.5)*mouse_check_deck_time2/5,decky-x2+(4-abs(2-deck_push2)*2)))
@@ -574,8 +624,10 @@ def menu2():
                     if mouse_check_change_deck[i]==0:
                         mouse_check_change_deck_time[i]=10
                     mouse_check_change_deck[i]=1
+                    se_collide(2,10+i)
                 else:
                     mouse_check_change_deck[i]=0
+                    collide_first[10+i]=1
                 if len(value.deck[i])==20:
                     value.screen.blit(deck[value.deckcolor[i]], (change_deckx[i]+math.sin(mouse_check_change_deck_time[i]*math.pi/2.5)*mouse_check_change_deck_time[i]/5,change_decky))
                 else:
@@ -587,8 +639,10 @@ def menu2():
                     if mouse_check_change_deck[i]==0:
                         mouse_check_change_deck_time[i]=10
                     mouse_check_change_deck[i]=1
+                    se_collide(2,10+i)
                 else:
                     mouse_check_change_deck[i]=0
+                    collide_first[10+i]=1
                 if len(value.deck[i])==20:
                     value.screen.blit(deck[value.deckcolor[i]], (change_deckx2[i]+math.sin(mouse_check_change_deck_time[i]*math.pi/2.5)*mouse_check_change_deck_time[i]/5,change_decky))
                 else:
@@ -596,8 +650,10 @@ def menu2():
 
         if games_rect.collidepoint(pygame.mouse.get_pos()):
             value.screen.blit(games2, (gamesx,gamesy-x2))
+            se_collide(2,6)
         else:
             value.screen.blit(games, (gamesx,gamesy-x2))
+            collide_first[6]=1
 
     #説明
     elif value.play_number==2:
@@ -618,13 +674,17 @@ def menu2():
                 if mouse_check_change_deck[i]==0:
                     mouse_check_change_deck_time[i]=10
                 mouse_check_change_deck[i]=1
+                se_collide(2,i)
             else:
                 mouse_check_change_deck[i]=0
+                collide_first[i]=1
             value.screen.blit(deck[value.deckcolor[i]], (make_deckx[i]+math.sin(mouse_check_change_deck_time[i]*math.pi/2.5)*mouse_check_change_deck_time[i]/5,make_decky-x2))
         if frame4_rect.collidepoint(pygame.mouse.get_pos()):
             value.screen.blit(frame5,(frame4x,frame4y-x2))
+            se_collide(2,5)
         else:
             value.screen.blit(frame4,(frame4x,frame4y-x2))
+            collide_first[5]=1
 
 
 
@@ -639,6 +699,7 @@ def menu2():
                         if change_deck_rect[i].collidepoint(pygame.mouse.get_pos()) and len(value.deck[i])==20:
                             value.decks=i
                             deck_change=False
+                            soundplay.se_play(4)
                     if not frame3_rect.collidepoint(pygame.mouse.get_pos()):
                         deck_change=False
                         deck_change2=False
@@ -647,6 +708,7 @@ def menu2():
                         if change_deck_rect[i+4].collidepoint(pygame.mouse.get_pos()) and len(value.deck[i])==20:
                             value.decks2=i
                             deck_change2=False
+                            soundplay.se_play(4)
                     if not frame3_rect.collidepoint(pygame.mouse.get_pos()):
                         deck_change=False
                         deck_change2=False
@@ -657,37 +719,43 @@ def menu2():
                                 case 4:
                                     value.menustep=0
                                     moveto1=move_time-moveto2
+                                    soundplay.se_play(3)
                                 case _:
                                     pass
                     if arrow_rect1[0].collidepoint(pygame.mouse.get_pos()):
                         arrow_push1[0]=5
                         if value.Startinghandsize>0:value.Startinghandsize-=1
+                        soundplay.se_play(4)
                     if arrow_rect2[0].collidepoint(pygame.mouse.get_pos()):
                         arrow_push2[0]=5
                         if value.Startinghandsize<Startinghandsize_size-1:value.Startinghandsize+=1
+                        soundplay.se_play(4)
                     if arrow_rect1[1].collidepoint(pygame.mouse.get_pos()):
                         arrow_push1[1]=5
                         if value.firstplayer>0:value.firstplayer-=1
+                        soundplay.se_play(4)
                     if arrow_rect2[1].collidepoint(pygame.mouse.get_pos()):
                         arrow_push2[1]=5
                         if value.firstplayer<firstplayer_size-1:value.firstplayer+=1
-                    if sonota_rect.collidepoint(pygame.mouse.get_pos()):
-                        pass
+                        soundplay.se_play(4)
                     if games_rect.collidepoint(pygame.mouse.get_pos()):
                         value.fade_out = True
                         value.fade_in = False
                         value.nextstep=3
-                    
+                        soundplay.se_play(5)
                     if deck_rect.collidepoint(pygame.mouse.get_pos()):
                         deck_push=4
                         mouse_check_deck_time=0
                         deck_change=True
+                        soundplay.se_play(4)
                     elif deck_rect2.collidepoint(pygame.mouse.get_pos()):
                         deck_push2=4
                         mouse_check_deck_time2=0
                         deck_change2=True
+                        soundplay.se_play(4)
                     if ivent_rect.collidepoint(pygame.mouse.get_pos()):
                         value.event_switch=1-value.event_switch
+                        soundplay.se_play(4)
             elif value.play_number==2:
                 for i in range(tab+1):
                     if frame_rect[i].collidepoint(pygame.mouse.get_pos()):
@@ -695,15 +763,17 @@ def menu2():
                             case 4:
                                 value.menustep=0
                                 moveto1=move_time-moveto2
+                                soundplay.se_play(3)
                             case _:
                                 pass
                 if arrow_rect1[2].collidepoint(pygame.mouse.get_pos()):
                     arrow_push1[0]=5
                     if value.help_page>0:value.help_page-=1
+                    soundplay.se_play(6)
                 if arrow_rect2[2].collidepoint(pygame.mouse.get_pos()):
                     arrow_push2[0]=5
                     if value.help_page<maxpage:value.help_page+=1
-
+                    soundplay.se_play(6)
 
             elif value.play_number==3:
                 for i in range(tab+1):
@@ -712,15 +782,18 @@ def menu2():
                             case 4:
                                 value.menustep=0
                                 moveto1=move_time-moveto2
+                                soundplay.se_play(3)
                             case _:
                                 pass
                 for i in range(4):
                         if make_deck_rect[i].collidepoint(pygame.mouse.get_pos()):
                             value.make_deck_ka=i
+                            soundplay.se_play(4)
                 if frame4_rect.collidepoint(pygame.mouse.get_pos()):
                     value.fade_out=True
                     value.fade_in=False
                     value.nextstep=2
+                    soundplay.se_play(5)
 
                             
                     

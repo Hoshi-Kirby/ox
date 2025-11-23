@@ -3,6 +3,7 @@ import sys
 import math
 
 import value
+import soundplay
 
 pygame.init()
 
@@ -103,10 +104,12 @@ def title():
                     value.fade_out = True
                     value.fade_in = False
                     value.nextstep=-1
+                    soundplay.se_play(3)
                 if start_rect.collidepoint(pygame.mouse.get_pos()):
                     value.fade_out = True
                     value.fade_in = False
                     value.nextstep=1
+                    soundplay.se_play(1)
 
     
 

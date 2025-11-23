@@ -17,12 +17,12 @@ for i in range(1,4):
     save_load.load(i)
 while True:
     if value.step==0:
-        soundplay.bgmplay(1)
+        soundplay.bgm_play(1)
     while value.step==0:
         title.title()
 
     if value.step==1:
-        soundplay.bgmplay(2)
+        soundplay.bgm_play(2)
     while value.step==1:
         if value.menustep==0:
             menu.menu()
@@ -32,6 +32,7 @@ while True:
     if value.step==2:
         value.t=0
         value.hold_deck=value.deck[value.make_deck_ka][:]
+        soundplay.bgm_play(4)
     while value.step==2:
         make.make()
 
@@ -47,7 +48,7 @@ while True:
             value.player=random.randint(1,2)
         else:
             value.player=value.firstplayer
-        soundplay.bgmplay(3)
+        soundplay.bgm_play(3)
     while value.step==4 and (not value.gamereset):
         if value.gamestep==0:
             game.gameb()
