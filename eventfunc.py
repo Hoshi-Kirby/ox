@@ -82,6 +82,7 @@ def handeath():
             card_x_after[0][i] = 639.5 - ((value.spacing_after * (len(value.hands) - 2)+width) / 2) + j * value.spacing_after
             if i!=card_select_base[0]:
                 j+=1
+        j=0
         for i in range(len(value.hands2)):
             card_x_before[1][i] = 639.5 - ((value.spacing2 * (len(value.hands2) - 1)+width) / 2) + i * value.spacing2
             card_x_after[1][i] = 639.5 - ((value.spacing2_after * (len(value.hands2) - 2)+width) / 2) + j * value.spacing2_after

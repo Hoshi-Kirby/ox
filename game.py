@@ -1310,8 +1310,8 @@ def skillbase():
     #枚数
     value.screen.blit(black_pekin,(black_x,black_y))
     value.screen.blit(black_pekin,(black_x2,black_y2))
-    value.screen.blit(token[0],(omaix,xmaiy))
-    value.screen.blit(token[1],(omaix,omaiy))
+    value.screen.blit(token[1],(omaix,xmaiy))
+    value.screen.blit(token[0],(omaix,omaiy))
     value.screen.blit(rest,(restx,omaiy))
     value.screen.blit(rest,(restx,xmaiy))
     if len(value.hands2)==0:

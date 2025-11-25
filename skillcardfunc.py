@@ -727,6 +727,7 @@ def skill43():
                 value.skillstep=2
             if turn_rect.collidepoint(pygame.mouse.get_pos()):
                 value.bridge_direct_n=1-value.bridge_direct_n
+                soundplay.se_play(4)
         if ch==0:
             value.skillstep=0
             value.gamestep=1
