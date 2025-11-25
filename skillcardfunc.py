@@ -3,6 +3,7 @@ import sys
 import value
 import random
 import math
+import soundplay
 pygame.init()
 
 speedx=20
@@ -229,6 +230,10 @@ def portal(skillnum):
                         card_x_after[i] = 639.5 - ((value.spacing2_after * (len(value.hands2) - 1-card_select_number)+width) / 2) + j * value.spacing2_after
                         if card_select[i]==0:
                             j+=1
+                if 1<card_select_number<5:
+                    soundplay.se_play(23)
+                elif 5<=card_select_number:
+                    soundplay.se_play(24)
 
             for i in range(9, -1, -1):
                 if card_select[i]>=1:
@@ -249,7 +254,12 @@ def portal(skillnum):
         elif value.click==1:
             if value.card_select_base[value.player-1]>=0:
                 if card_select[value.card_select_base[value.player-1]]<2:
-                    card_select[value.card_select_base[value.player-1]]=1-card_select[value.card_select_base[value.player-1]]
+                    if card_select[value.card_select_base[value.player-1]]==0:
+                        card_select[value.card_select_base[value.player-1]]=1
+                        soundplay.se_play(4)
+                    elif card_select[value.card_select_base[value.player-1]]==1:
+                        card_select[value.card_select_base[value.player-1]]=0
+                        soundplay.se_play(15)
         if card_move_time>0:card_move_time-=1
     else:
         globals()[f"skill{skillnum}"]()
@@ -280,6 +290,7 @@ def skill11():#deleteキー
         value.board[click_x][click_y]=0
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(17)
         
 
 def skill12():
@@ -308,6 +319,7 @@ def skill12():
         if 1<=value.board[click_x][click_y+1]<=2:value.board[click_x][click_y+1]=0
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(18)
         
 
 def skill13():
@@ -355,6 +367,7 @@ def skill13():
                     card_x_after[i] = 639.5 - ((value.spacing2_after * (len(value.hands2) - 2)+width) / 2) + j * value.spacing2_after
                     if i!=card_select_base:
                         j+=1
+            soundplay.se_play(19)
 
         for i in range(9, -1, -1):
             if i==card_select_base:
@@ -402,6 +415,7 @@ def skill21():
         value.board[click_x][click_y]=value.player
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(20)
         
 
 def skill22():
@@ -426,6 +440,7 @@ def skill22():
         value.board2[click_x][click_y]=value.player
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(20)
         
 
 def skill23():
@@ -450,6 +465,7 @@ def skill23():
         value.board[click_x][click_y]=3
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(20)
         
 
 def skill24():
@@ -472,6 +488,7 @@ def skill24():
     if value.t>30:
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(7)
 
 def skill25():
     if value.skillstep==1:
@@ -495,6 +512,7 @@ def skill25():
         value.board[click_x][click_y]=value.player
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(20)
         
 
 def skill31():
@@ -520,6 +538,7 @@ def skill31():
         value.skillstep=0
         value.gamestep=1
         value.turn404[click_x][click_y]=3
+        soundplay.se_play(20)
         
 
 def skill32():
@@ -579,9 +598,12 @@ def skill32():
         value.skillstep=0
         value.gamestep=1
         value.block[click_x]=5
+        soundplay.se_play(8)
         
 
 def skill33():
+    if value.t==1:
+        soundplay.se_play(22)
     if value.t==20:
         value.card_dcost[2-value.player]=2
     for i in range(10):
@@ -634,6 +656,7 @@ def skill41():
         value.board[click_x][click_y]=3-value.player
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(20)
         
 
 def skill42():
@@ -679,6 +702,7 @@ def skill42():
         value.board[click_x][click_y]=0
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(20)
         
 
 def skill43():
@@ -721,6 +745,7 @@ def skill43():
             if click_x<3:value.board2[2+(click_x-2)*2+1][2+(click_y-2)*2]=7
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(20)
         
 
 def skill44():
@@ -745,9 +770,12 @@ def skill44():
         value.board[click_x][click_y]=value.player
         value.skillstep=0
         value.gamestep=1
+        soundplay.se_play(20)
         
 
 def skill45():
+    if value.t==1:
+        soundplay.se_play(21)
     if value.t==20:
         value.card_dcost[value.player-1]-=2
     for i in range(10):

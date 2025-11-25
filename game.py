@@ -6,10 +6,13 @@ import value
 import random
 import skillcardfunc
 import eventfunc
+import soundplay
 pygame.init()
 
 menut=0
 tch=0
+collide_first=[0]*50
+
 #壁紙
 pekin = pygame.image.load("image/neon_city.png").convert()
 original_width, original_height = pekin.get_size()
@@ -213,10 +216,10 @@ event_rect=no_event.get_rect(topleft=(detailx,no_event_y))
 ready_text=font.render("Ready?", True, (255, 255, 255))
 font_size_max=200
 font_size=60
-ready_time=240
-ready_time2=100
+ready_time=170
+ready_time2=70
 start_text=font.render("Start!", True, (255, 255, 255))
-start_time=150
+start_time=70
 start_time2=50
 finish_text=font.render("Finish!", True, (255, 255, 255))
 finish_time=150
@@ -365,14 +368,17 @@ def check_win(p):
 
 def menuui():
     global pause_ka
+    global collide_first
     pause_ka=-1
     value.screen.blit(pausename, (width_skew_pause,pausey+math.sin(menut/100)*10))
     for i in range(3):
         if button_rect[i].collidepoint(pygame.mouse.get_pos()):
             value.screen.blit(button[i*2+1], (width_skew_button,buttony[i]))
             pause_ka=i
+            se_collide(2,22+i)
         else:
             value.screen.blit(button[i*2], (width_skew_button,buttony[i]))
+            collide_first[22+i]=1
 def handsadd(h,n,m):
     check=[0]*20
     if h==1:
@@ -406,7 +412,18 @@ def detail(x,xx,yy):
     value.detail_check=True
     value.screen.blit(detail_image[x], (xx,yy))
 
-        
+def bridgech(x,y,n):
+    if value.board2[x][y]==15-n:
+        value.board2[x][y]=9
+    else:
+        value.board2[x][y]=n
+
+def se_collide(i,n):
+    global collide_first
+    if collide_first[n]==1:
+        soundplay.se_play(i)
+        collide_first[n]=0
+
 
 def gameb():
     global font_size
@@ -416,6 +433,7 @@ def gameb():
     global menu
     global menumode
     global tch
+    global collide_first
     
     global first
     global finish
@@ -475,6 +493,9 @@ def gameb():
             value.screen.blit(event_image[value.event_turn-1], (detailx,no_event_y))
         if event_rect.collidepoint(pygame.mouse.get_pos()):
             detail(80+value.nextevent,detailx,detaily)
+            se_collide(2,0)
+        else:
+            collide_first[0]=1
 
     value.screen.blit(line2,(detailx-50,line2y))
     value.screen.blit(line2,(detailx-50,line2y+line2yy))
@@ -519,6 +540,9 @@ def gameb():
             value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (x + j * value.spacing, y))
         if card_rect.collidepoint(pygame.mouse.get_pos()):
             detail(cardnumber,detailx,detaily)
+            se_collide(2,1+i)
+        else:
+            collide_first[1+i]=1
         j+=1
     j=0
     for i in value.hands2:
@@ -533,6 +557,9 @@ def gameb():
             value.screen.blit(cost_image[value.cost[cardnumber]], (x + j * value.spacing, y))
         if card_rect.collidepoint(pygame.mouse.get_pos()):
             detail(cardnumber,detailx,detaily)
+            se_collide(2,11+i)
+        else:
+            collide_first[11+i]=1
         j+=1
     
     value.screen.blit(turnend,(turnendx,turnendy))
@@ -579,20 +606,24 @@ def gameb():
                 match pause_ka:
                     case 0:
                         pass
+                        soundplay.se_play(4)
                     case 1:
                         value.fade_out=True
                         value.fade_in=False
                         value.nextstep=0
+                        soundplay.se_play(4)
                     case 2:
                         value.fade_out=True
                         value.fade_in=False
                         value.nextstep=-1
+                        soundplay.se_play(4)
                     case _:
                         menumode=True
                         menu=True
             else:
                 if menu_icon_rect.collidepoint(pygame.mouse.get_pos()):
                     menu=True
+                    soundplay.se_play(16)
     
     if value.t>start_time+start_time2+ready_time+ready_time2:
         value.gamestep=1
@@ -624,6 +655,7 @@ def gameb():
             value.fade_alpha = 0
 
             value.fade_in = False
+            soundplay.se_play(8)
 
         value.fade_surface.set_alpha(value.fade_alpha)
         value.screen.blit(value.fade_surface, (0, 0))
@@ -635,6 +667,7 @@ def gameb():
                 handsadd(2,value.decks2,1)
                 cardx_move=10
                 cardx_move2=30
+                soundplay.se_play(7)
     
     tch=value.t
 
@@ -658,6 +691,7 @@ def game():
     global menu
     global menumode
     global menut
+    global collide_first
     
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
@@ -688,6 +722,9 @@ def game():
             value.screen.blit(event_image[value.event_turn-1], (detailx,no_event_y))
         if event_rect.collidepoint(pygame.mouse.get_pos()):
             detail(80+value.nextevent,detailx,detaily)
+            se_collide(2,0)
+        else:
+            collide_first[0]=1
 
     value.screen.blit(line2,(detailx-50,line2y))
     value.screen.blit(line2,(detailx-50,line2y+line2yy))
@@ -734,6 +771,9 @@ def game():
         y = cardy
         if card_select_any==j:
             y-=10
+            se_collide(2,1+j)
+        else:
+            collide_first[1+j]=1
         cardnumber=value.deck[value.decks][i]
         value.screen.blit(all_cards_image[cardnumber], (cardx + j * value.spacing, y))
         value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (cardx + j * value.spacing, y))
@@ -755,6 +795,9 @@ def game():
         y = cardy2
         if card_select_any==j:
             y+=10
+            se_collide(2,11+j)
+        else:
+            collide_first[11+j]=1
         cardnumber=value.deck[value.decks2][i]
         value.screen.blit(all_cards_image[cardnumber], (cardx2 + j * value.spacing2, y))
         value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (cardx2 + j * value.spacing2, y))
@@ -762,8 +805,10 @@ def game():
 
     if turnend_rect.collidepoint(pygame.mouse.get_pos()):
         value.screen.blit(turnend2,(turnendx,turnendy))
+        se_collide(2,21)
     else:
         value.screen.blit(turnend,(turnendx,turnendy))
+        collide_first[21]=1
 
 
     #メニューーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
@@ -793,14 +838,17 @@ def game():
                 match pause_ka:
                     case 0:
                         pass
+                        soundplay.se_play(4)
                     case 1:
                         value.fade_out=True
                         value.fade_in=False
                         value.nextstep=0
+                        soundplay.se_play(4)
                     case 2:
                         value.fade_out=True
                         value.fade_in=False
                         value.nextstep=-1
+                        soundplay.se_play(4)
                     case _:
                         menumode=True
                         menu=True
@@ -811,6 +859,7 @@ def game():
                     value.card_dx=[[0]*10,[0]*10]
                     value.card_dy=[[0]*10,[0]*10]
                     value.t=0
+                    soundplay.se_play(0)
                 if card_select>=0:
                     if (value.player==1 and len(value.hands)>value.cost[value.deck[value.decks][value.hands[card_select]]]+value.card_dcost[0]) or (value.player==2 and len(value.hands2)>value.cost[value.deck[value.decks2][value.hands2[card_select]]]+value.card_dcost[1]):
                         if value.player==1:
@@ -821,8 +870,10 @@ def game():
                         value.skillstep=0
                         value.card_dy_mode=True
                         skillcardfunc.riset(card_select)
+                        soundplay.se_play(11)
                 if menu_icon_rect.collidepoint(pygame.mouse.get_pos()):
                     menu=True
+                    soundplay.se_play(16)
 
             # mouseX, mouseY = event.pos
             # if value.OFFSET_X <= mouseX < value.OFFSET_X + value.BOARD_SIZE and value.OFFSET_Y <= mouseY < value.OFFSET_Y + value.BOARD_SIZE:
@@ -856,6 +907,7 @@ def game():
         if not finish:
             finisht=value.t
             finish=True
+            soundplay.se_play(12)
         if value.t<finish_time+finisht:
             font_size=font_size_max
         elif value.t<finish_time+finish_time2+finisht:
@@ -864,7 +916,7 @@ def game():
             value.nextstep=1
         if value.t<finish_time+finish_time2+finisht:
             font = pygame.font.SysFont("Meiryo UI", font_size)
-            if value.t<finish_time+finish_time2:
+            if value.t<finish_time+finish_time2+finisht:
                 finish_text = font.render("Finish!", True, (255, 160, 160))
                 value.screen.blit(finish_text, finish_text.get_rect(center=(639.5, 400)))
     if check_win(2):
@@ -872,6 +924,7 @@ def game():
         if not finish:
             finisht=value.t
             finish=True
+            soundplay.se_play(12)
         if value.t<finish_time+finisht:
             font_size=font_size_max
         elif value.t<finish_time+finish_time2+finisht:
@@ -880,7 +933,7 @@ def game():
             value.nextstep=1
         if value.t<finish_time+finish_time2+finisht:
             font = pygame.font.SysFont("Meiryo UI", font_size)
-            if value.t<finish_time+finish_time2:
+            if value.t<finish_time+finish_time2+finisht:
                 finish_text = font.render("Finish!", True, (255, 160, 160))
                 value.screen.blit(finish_text, finish_text.get_rect(center=(639.5, 400)))
 
@@ -925,6 +978,7 @@ def change():
     global cardx_move2
     global first
     global card_dcost_mode
+    global collide_first
     value.screen.blit(pekin, (widhe_skew,0))
     draw_lines()
     for i in range(5):
@@ -957,6 +1011,9 @@ def change():
             value.screen.blit(event_image[value.event_turn-1], (detailx,no_event_y))
         if event_rect.collidepoint(pygame.mouse.get_pos()):
             detail(80+value.nextevent,detailx,detaily)
+            se_collide(2,0)
+        else:
+            collide_first[0]=1
         
     value.screen.blit(line2,(detailx-50,line2y))
     value.screen.blit(line2,(detailx-50,line2y+line2yy))
@@ -1006,6 +1063,9 @@ def change():
         y+=value.card_dy[0][j]
         if card_select_any==j:
             y-=10
+            se_collide(2,1+j)
+        else:
+            collide_first[1+j]=1
         cardnumber=value.deck[value.decks][i]
         if value.player==1 or value.eventnum==0:
             if j==len(value.hands):
@@ -1036,6 +1096,9 @@ def change():
         y-=value.card_dy[1][j]
         if card_select_any==j:
             y+=10
+            se_collide(2,11+j)
+        else:
+            collide_first[11+j]=1
         cardnumber=value.deck[value.decks2][i]
         if value.player==2 or value.eventnum==0:
             if j==len(value.hands2):
@@ -1082,22 +1145,26 @@ def change():
                 handsadd(1,value.decks,1)
                 cardx_move=10
                 cardx_move2=30
+                soundplay.se_play(7)
         else:
             if len(value.hands2)<10:
                 handsadd(2,value.decks2,1)
                 cardx_move=10
                 cardx_move2=30
+                soundplay.se_play(7)
         if value.eventnum==0:
             if value.player==2:
                 if len(value.hands)<10:
                     handsadd(1,value.decks,1)
                     cardx_move=10
                     cardx_move2=30
+                    soundplay.se_play(7)
             else:
                 if len(value.hands2)<10:
                     handsadd(2,value.decks2,1)
                     cardx_move=10
                     cardx_move2=30
+                    soundplay.se_play(7)
 
 
     #一度だけ
@@ -1112,19 +1179,20 @@ def change():
                 elif value.turn404[i][j]==0:
                     value.board[i][j]=0
                     value.turn404[i][j]=-1
+                    soundplay.se_play(9)
         
         for i in range(5):
             for j in range(5):
                 if value.bridge_direct[i][j]==0 and value.board[i][j]==5 or value.bridge_direct[i][j]==1 and value.board[i][j]==6:
-                    if j>1:value.board2[2+(i-2)*2][2+(j-2)*2-1]=7
-                    if j<1:value.board2[2+(i-2)*2][2+(j-2)*2+1]=7
-                    if i>1:value.board2[2+(i-2)*2-1][2+(j-2)*2]=8
-                    if i<1:value.board2[2+(i-2)*2+1][2+(j-2)*2]=8
+                    if j>1:bridgech(2+(i-2)*2,2+(j-2)*2-1,7)
+                    if j<1:bridgech(2+(i-2)*2,2+(j-2)*2+1,7)
+                    if i>1:bridgech(2+(i-2)*2-1,2+(j-2)*2,8)
+                    if i<1:bridgech(2+(i-2)*2+1,2+(j-2)*2,8)
                 elif value.bridge_direct[i][j]==1 and value.board[i][j]==5 or value.bridge_direct[i][j]==0 and value.board[i][j]==6:
-                    if j>1:value.board2[2+(i-2)*2][2+(j-2)*2-1]=8
-                    if j<1:value.board2[2+(i-2)*2][2+(j-2)*2+1]=8
-                    if i>1:value.board2[2+(i-2)*2-1][2+(j-2)*2]=7
-                    if i<1:value.board2[2+(i-2)*2+1][2+(j-2)*2]=7
+                    if j>1:bridgech(2+(i-2)*2,2+(j-2)*2-1,8)
+                    if j<1:bridgech(2+(i-2)*2,2+(j-2)*2+1,8)
+                    if i>1:bridgech(2+(i-2)*2-1,2+(j-2)*2,7)
+                    if i<1:bridgech(2+(i-2)*2+1,2+(j-2)*2,7)
 
         for i in range(4):
             if value.block[i]>0:
@@ -1154,6 +1222,7 @@ def change():
                 if i==3:
                     for j in range(5):
                         value.board2[3][j]=0
+                soundplay.se_play(9)
                 value.block[i]=-1
 
         if value.event_switch==1:
@@ -1162,6 +1231,7 @@ def change():
             eventfunc.event(value.nextevent)
             value.event_turn=random.randint(value.event_turn_min,value.event_turn_max+1)
             value.nextevent=random.randint(0,3)
+            soundplay.se_play(10)
     
     if value.eventnum>0:
         eventfunc.eventfunc(value.eventnum)
@@ -1195,6 +1265,7 @@ def skillbase():
     global card_rect
     global card_select
     global skillcard
+    global collide_first
 
     value.detail_check=False
     
@@ -1227,6 +1298,9 @@ def skillbase():
             value.screen.blit(event_image[value.event_turn-1], (detailx,no_event_y))
         if event_rect.collidepoint(pygame.mouse.get_pos()):
             detail(80+value.nextevent,detailx,detaily)
+            se_collide(2,0)
+        else:
+            collide_first[0]=1
 
     value.screen.blit(line2,(detailx-50,line2y))
     value.screen.blit(line2,(detailx-50,line2y+line2yy))
@@ -1278,6 +1352,9 @@ def skillbase():
             y-=30
         elif value.card_select_base[0]==j and value.card_dy_mode:
             y-=10
+            se_collide(2,1+j)
+        else:
+            collide_first[1+j]=1
         cardnumber=value.deck[value.decks][i]
         value.screen.blit(all_cards_image[cardnumber], (cardx+value.card_dx[0][j] + j * value.spacing, y))
         value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[0])], (cardx+value.card_dx[0][j] + j * value.spacing, y))
@@ -1303,6 +1380,9 @@ def skillbase():
             y+=30
         elif value.card_select_base[1]==j and value.card_dy_mode:
             y+=10
+            se_collide(2,11+j)
+        else:
+            collide_first[11+j]=1
         cardnumber=value.deck[value.decks2][i]
         value.screen.blit(all_cards_image[cardnumber], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))
         value.screen.blit(cost_image[max(0,value.cost[cardnumber]+value.card_dcost[1])], (cardx2+value.card_dx[1][j] + j * value.spacing2, y))

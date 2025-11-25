@@ -3,10 +3,12 @@ import sys
 import math
 
 import value
+import soundplay
 
 pygame.init()
 
 t=-1
+collide_first=[0]*10
 
 #壁紙
 pekin = pygame.image.load("image/neon_scene.png").convert()
@@ -82,17 +84,25 @@ tokenx=755
 tokeny=winnery+10
 
 
+def se_collide(i,n):
+    global collide_first
+    if collide_first[n]==1:
+        soundplay.se_play(i)
+        collide_first[n]=0
 
 
 
 
 def gameset():
     global t
+    global collide_first
     value.screen.blit(pekin, (0,height_skew))
     value.screen.blit(black, (blackx,blacky))
     value.screen.blit(result, (resultx,resulty))
 
-
+    if t==winner_time3+winner_time2+winner_time or t==winner_time:
+        soundplay.se_play(14)
+        
     if 0<t<winner_time:
         font_size=(1+0.2*(winner_time-t)/winner_time)
     elif t<winner_time2+winner_time:
@@ -116,12 +126,16 @@ def gameset():
 
             if more_rect.collidepoint(pygame.mouse.get_pos()):
                 value.screen.blit(more2name, (morex,morey))
+                se_collide(2,0)
             else:
                 value.screen.blit(morename, (morex,morey))
+                collide_first[0]=1
             if back_rect.collidepoint(pygame.mouse.get_pos()):
                 value.screen.blit(back2name, (backx,backy))
+                se_collide(2,1)
             else:
                 value.screen.blit(backname, (backx,backy))
+                collide_first[1]=1
 
 
     for event in pygame.event.get():
@@ -134,10 +148,12 @@ def gameset():
                         value.fade_out = True
                         value.fade_in = False
                         value.nextstep=-1
+                        soundplay.se_play(3)
                     if more_rect.collidepoint(pygame.mouse.get_pos()):
                         value.fade_out = True
                         value.fade_in = False
                         value.nextstep=1
+                        soundplay.se_play(5)
 
     
 
@@ -166,6 +182,7 @@ def gameset():
             value.fade_alpha = 0
             value.fade_in = False
             t=0
+            soundplay.se_play(13)
 
         value.fade_surface.set_alpha(value.fade_alpha)
         value.screen.blit(value.fade_surface, (0, 0))
