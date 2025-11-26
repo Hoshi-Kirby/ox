@@ -623,6 +623,7 @@ def gameb():
             else:
                 if menu_icon_rect.collidepoint(pygame.mouse.get_pos()):
                     menu=True
+                    value.fade_alpha = 0
                     soundplay.se_play(16)
     
     if value.t>start_time+start_time2+ready_time+ready_time2:
@@ -873,6 +874,7 @@ def game():
                         soundplay.se_play(11)
                 if menu_icon_rect.collidepoint(pygame.mouse.get_pos()):
                     menu=True
+                    value.fade_alpha = 0
                     soundplay.se_play(16)
 
             # mouseX, mouseY = event.pos

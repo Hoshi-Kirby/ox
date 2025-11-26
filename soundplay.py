@@ -50,7 +50,7 @@ se[-1].set_volume(0.3)
 se.append(pygame.mixer.Sound("sound/put bisi.wav"))#20
 se[-1].set_volume(0.3)
 se.append(pygame.mixer.Sound("sound/up kui-n.wav"))#21
-se[-1].set_volume(0.4)
+se[-1].set_volume(0.3)
 se.append(pygame.mixer.Sound("sound/down down.wav"))#22
 se[-1].set_volume(0.7)
 se.append(pygame.mixer.Sound("sound/backcard1 syu.wav"))#23

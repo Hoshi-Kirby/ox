@@ -312,11 +312,11 @@ def skill12():
             value.skillstep=0
             value.gamestep=1
     if value.skillstep==2:
-        if 1<=value.board[click_x][click_y]<=2:value.board[click_x][click_y]=0
-        if 1<=value.board[click_x-1][click_y]<=2:value.board[click_x-1][click_y]=0
-        if 1<=value.board[click_x][click_y-1]<=2:value.board[click_x][click_y-1]=0
-        if 1<=value.board[click_x+1][click_y]<=2:value.board[click_x+1][click_y]=0
-        if 1<=value.board[click_x][click_y+1]<=2:value.board[click_x][click_y+1]=0
+        if 1<=value.board[click_x][click_y]:value.board[click_x][click_y]=0
+        if 1<=value.board[click_x-1][click_y]:value.board[click_x-1][click_y]=0
+        if 1<=value.board[click_x][click_y-1]:value.board[click_x][click_y-1]=0
+        if 1<=value.board[click_x+1][click_y]:value.board[click_x+1][click_y]=0
+        if 1<=value.board[click_x][click_y+1]:value.board[click_x][click_y+1]=0
         value.skillstep=0
         value.gamestep=1
         soundplay.se_play(18)
