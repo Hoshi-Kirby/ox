@@ -32,6 +32,7 @@ while True:
     if value.step==2:
         value.t=0
         value.hold_deck=value.deck[value.make_deck_ka][:]
+        value.hold_color=value.deckcolor[value.make_deck_ka]
         soundplay.bgm_play(4)
     while value.step==2:
         make.make()

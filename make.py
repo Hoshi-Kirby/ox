@@ -393,6 +393,7 @@ def make():
                 value.fade_out=False
                 value.fade_in=True
                 value.deck[value.make_deck_ka]=value.hold_deck[:]
+                value.deckcolor[value.make_deck_ka]=value.hold_color
             if value.nextstep==-1:
                 value.step=1
                 value.fade_out=False

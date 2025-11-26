@@ -112,6 +112,7 @@ winner=0
 
 #make
 hold_deck=[]
+hold_color=0
 
 #BGM
 bgm_track=0
