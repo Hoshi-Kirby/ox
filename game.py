@@ -249,7 +249,7 @@ hand_max=9
 
 #コスト
 cost_image=[]
-for i in range(11):
+for i in range(17):
     cost_image.append(pygame.image.load(f"image/cost{i}.png").convert())
     cost_image[i].set_colorkey((255, 255, 255))
     cost_image[i]=pygame.transform.scale_by(cost_image[i],card_size)

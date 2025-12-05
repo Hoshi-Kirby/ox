@@ -58,6 +58,7 @@ frame3.set_colorkey((255, 255, 255))
 frame3.set_alpha(220)
 frame3x,frame3y=600,450
 frame3_rect=frame3.get_rect(topleft=(frame3x, frame3y))
+frame3_rect2=frame3.get_rect(topleft=(frame3x+150, frame3y))
 
 frame4size=1
 img = pygame.image.load("image/frame6.png").convert()
@@ -709,7 +710,7 @@ def menu2():
                             value.decks2=i
                             deck_change2=False
                             soundplay.se_play(4)
-                    if not frame3_rect.collidepoint(pygame.mouse.get_pos()):
+                    if not frame3_rect2.collidepoint(pygame.mouse.get_pos()):
                         deck_change=False
                         deck_change2=False
                 else:
