@@ -18,8 +18,8 @@ step=0
 nextstep=0
 #cost
 cost={}
-cost[11]=1#delete
-cost[12]=3#超新星爆発
+cost[11]=3#delete <
+cost[12]=4#超新星爆発 <
 cost[13]=1#カード割り
 cost[21]=6#外れ値
 cost[22]=6#囲碁

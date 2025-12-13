@@ -904,7 +904,7 @@ def game():
         value.spacing2=50
 
     #勝ち
-    if check_win(1):
+    if check_win(1) and (not check_win(2)):
         value.winner=1
         if not finish:
             finisht=value.t
@@ -921,7 +921,7 @@ def game():
             if value.t<finish_time+finish_time2+finisht:
                 finish_text = font.render("Finish!", True, (255, 160, 160))
                 value.screen.blit(finish_text, finish_text.get_rect(center=(639.5, 400)))
-    if check_win(2):
+    if check_win(2) and (not check_win(1)):
         value.winner=2
         if not finish:
             finisht=value.t
