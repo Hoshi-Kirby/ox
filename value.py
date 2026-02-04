@@ -84,6 +84,7 @@ turn404 = [[-1 for _ in range(5)] for _ in range(5)]
 block=[-1]*4
 bridge_direct=[[0 for _ in range(5)] for _ in range(5)]  #0=横
 bridge_direct_n=0
+cput=0
 
 player = 1
 game_over = False

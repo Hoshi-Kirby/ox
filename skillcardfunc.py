@@ -4,6 +4,7 @@ import value
 import random
 import math
 import soundplay
+import cpu
 pygame.init()
 
 speedx=20
@@ -238,6 +239,7 @@ def portal(skillnum):
                     soundplay.se_play(23)
                 elif 5<=card_select_number:
                     soundplay.se_play(24)
+                value.cput=120
 
             for i in range(9, -1, -1):
                 if card_select[i]>=1:
@@ -255,6 +257,18 @@ def portal(skillnum):
                 value.card_dx=[[0]*10,[0]*10]
                 value.card_dy=[[0]*10,[0]*10]
                 card_move_time=-2
+        #CPU
+        elif  value.play_number==0 and value.player==2 and value.cput==0:
+            value.card_select_base[value.player-1]=cpu.card_select_base(card_select)
+            if value.card_select_base[value.player-1]>=0:
+                if card_select[value.card_select_base[value.player-1]]<2:
+                    if card_select[value.card_select_base[value.player-1]]==0:
+                        card_select[value.card_select_base[value.player-1]]=1
+                        soundplay.se_play(4)
+                    elif card_select[value.card_select_base[value.player-1]]==1:
+                        card_select[value.card_select_base[value.player-1]]=0
+                        soundplay.se_play(15)
+                    value.cput=10
         elif value.click==1:
             if value.card_select_base[value.player-1]>=0:
                 if card_select[value.card_select_base[value.player-1]]<2:
@@ -287,6 +301,9 @@ def skill11():#deleteキー
         if value.click==1:
             if click_x!=-1 and click_y!=-1:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+            click_x,click_y=cpu.cpu11()
+            value.skillstep=2
         if ch==0:
             value.skillstep=0
             value.gamestep=1
@@ -312,6 +329,9 @@ def skill12():
         if value.click==1:
             if click_x!=-1 and click_y!=-1:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+            click_x,click_y=cpu.cpu12()
+            value.skillstep=2
         if ch==0:
             value.skillstep=0
             value.gamestep=1
@@ -334,6 +354,10 @@ def skill13():
         if value.click==1:
             if value.card_select_base[2-value.player]>=0:
                 card_select_base=value.card_select_base[2-value.player]
+                value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0:
+            if value.card_select_base[2-value.player]>=0:
+                card_select_base=cpu.cpu13()
                 value.skillstep=2
         card_move_time=-1
         
@@ -412,6 +436,9 @@ def skill21():
         if value.click==1:
             if click_x!=-1 and click_y!=-1:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+            click_x,click_y=cpu.cpu21()
+            value.skillstep=2
         if ch==0:
             value.skillstep=0
             value.gamestep=1
@@ -437,6 +464,9 @@ def skill22():
         if value.click==1:
             if click_x!=-1 and click_y!=-1:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+            click_x,click_y=cpu.cpu22()
+            value.skillstep=2
         if ch==0:
             value.skillstep=0
             value.gamestep=1
@@ -462,6 +492,9 @@ def skill23():
         if value.click==1:
             if click_x!=-1 and click_y!=-1:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+            click_x,click_y=cpu.cpu23()
+            value.skillstep=2
         if ch==0:
             value.skillstep=0
             value.gamestep=1
@@ -509,6 +542,9 @@ def skill25():
         if value.click==1:
             if click_x!=-1 and click_y!=-1:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+            click_x,click_y=cpu.cpu25()
+            value.skillstep=2
         if ch==0:
             value.skillstep=0
             value.gamestep=1
@@ -534,6 +570,9 @@ def skill31():
         if value.click==1:
             if click_x!=-1 and click_y!=-1:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+            click_x,click_y=cpu.cpu31()
+            value.skillstep=2
         if ch==0:
             value.skillstep=0
             value.gamestep=1
@@ -583,6 +622,9 @@ def skill32():
         if value.click==1:
             if click_x>=0:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+            click_x=cpu.cpu32()
+            value.skillstep=2
         if ch==0:
             value.skillstep=0
             value.gamestep=1
@@ -637,6 +679,9 @@ def skill41():
         if value.click==1:
             if click_x!=-1 and click_y!=-1:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1 and ch2==1:
+            click_x,click_y=cpu.cpu41()
+            value.skillstep=2
         if ch==0 or ch2==0:
             value.skillstep=0
             value.gamestep=1
@@ -654,6 +699,9 @@ def skill41():
         if value.click==1:
             if click2_x!=-1 and click2_y!=-1:
                 value.skillstep=3
+        if  value.play_number==0 and value.player==2:
+            click2_x,click2_y=cpu.cpu41_2()
+            value.skillstep=3
 
     if value.skillstep==3:
         value.board[click2_x][click2_y]=value.player
@@ -683,6 +731,9 @@ def skill42():
         if value.click==1:
             if click_x!=-1 and click_y!=-1:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1 and ch2==1:
+            click_x,click_y=cpu.cpu42()
+            value.skillstep=2
         if ch==0 or ch2==0:
             value.skillstep=0
             value.gamestep=1
@@ -700,6 +751,9 @@ def skill42():
         if value.click==1:
             if click2_x!=-1 and click2_y!=-1:
                 value.skillstep=3
+        if  value.play_number==0 and value.player==2:
+            click2_x,click2_y=cpu.cpu42_2()
+            value.skillstep=3
 
     if value.skillstep==3:
         value.board[click2_x][click2_y]=value.player
@@ -732,6 +786,9 @@ def skill43():
             if turn_rect.collidepoint(pygame.mouse.get_pos()):
                 value.bridge_direct_n=1-value.bridge_direct_n
                 soundplay.se_play(4)
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+            click_x,click_y,value.bridge_direct_n=cpu.cpu43()
+            value.skillstep=2
         if ch==0:
             value.skillstep=0
             value.gamestep=1
@@ -768,6 +825,9 @@ def skill44():
         if value.click==1:
             if click_x!=-1 and click_y!=-1:
                 value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+            click_x,click_y=cpu.cpu44()
+            value.skillstep=2
         if ch==0:
             value.skillstep=0
             value.gamestep=1

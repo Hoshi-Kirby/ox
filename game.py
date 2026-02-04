@@ -7,6 +7,7 @@ import random
 import skillcardfunc
 import eventfunc
 import soundplay
+import cpu
 pygame.init()
 
 menut=0
@@ -860,6 +861,7 @@ def game():
                     value.card_dx=[[0]*10,[0]*10]
                     value.card_dy=[[0]*10,[0]*10]
                     value.t=0
+                    value.cput=60
                     soundplay.se_play(0)
                 if card_select>=0:
                     if (value.player==1 and len(value.hands)>value.cost[value.deck[value.decks][value.hands[card_select]]]+value.card_dcost[0]) or (value.player==2 and len(value.hands2)>value.cost[value.deck[value.decks2][value.hands2[card_select]]]+value.card_dcost[1]):
@@ -889,6 +891,36 @@ def game():
             #                 value.game_over = True
 
             #             value.player = 2 if value.player == 1 else 1
+    # CPU
+    if value.play_number==0 and value.player==2 and value.cput==0:
+        if len(value.hands2)>0:
+            card_select=cpu.card_select()
+        if len(value.hands2)>0 and card_select>=0:
+            if (value.player==1 and len(value.hands)>value.cost[value.deck[value.decks][value.hands[card_select]]]+value.card_dcost[0]) or (value.player==2 and len(value.hands2)>value.cost[value.deck[value.decks2][value.hands2[card_select]]]+value.card_dcost[1]):
+                if value.player==1:
+                    skillcard=value.deck[value.decks][value.hands[card_select]]
+                else:
+                    skillcard=value.deck[value.decks2][value.hands2[card_select]]
+                value.gamestep=3
+                value.skillstep=0
+                value.card_dy_mode=True
+                skillcardfunc.riset(card_select)
+                soundplay.se_play(11)
+                value.cput=60
+            else:
+                value.player = 2 if value.player == 1 else 1
+                value.gamestep=2
+                value.card_dx=[[0]*10,[0]*10]
+                value.card_dy=[[0]*10,[0]*10]
+                value.t=0
+                soundplay.se_play(0)
+        else:
+            value.player = 2 if value.player == 1 else 1
+            value.gamestep=2
+            value.card_dx=[[0]*10,[0]*10]
+            value.card_dy=[[0]*10,[0]*10]
+            value.t=0
+            soundplay.se_play(0)
     
     if len(value.hands)<6:
         value.spacing=120
@@ -971,6 +1003,7 @@ def game():
         value.screen.blit(value.fade_surface, (0, 0))
 
     value.t+=1
+    if value.cput>0:value.cput-=1
     menut+=1
     pygame.display.update()
 
@@ -1424,4 +1457,5 @@ def skillbase():
 
 
     value.t+=1
+    if value.cput>0:value.cput-=1
     pygame.display.update()
