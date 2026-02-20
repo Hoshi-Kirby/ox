@@ -892,7 +892,7 @@ def game():
 
             #             value.player = 2 if value.player == 1 else 1
     # CPU
-    if value.play_number==0 and value.player==2 and value.cput==0:
+    if value.play_number==0 and value.player==2 and value.cput==0 and (not finish):
         if len(value.hands2)>0:
             card_select=cpu.card_select()
         if len(value.hands2)>0 and card_select>=0:
