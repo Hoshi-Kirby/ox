@@ -174,6 +174,7 @@ def cpu12():
     return r1,r2
 def cpu13():
     r=evalufunc.bestmove3(2,13)[0]
+    value.cput=60
     return r
 def cpu21():
     r1,r2=evalufunc.bestmove3(2,21)

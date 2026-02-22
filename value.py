@@ -117,3 +117,6 @@ hold_color=0
 
 #BGM
 bgm_track=0
+
+#cpu
+changes=[]

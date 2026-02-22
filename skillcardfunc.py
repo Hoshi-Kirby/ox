@@ -182,6 +182,8 @@ def riset(card_select_before):
     value.card_dy=[[0]*10,[0]*10]
 
 def bridgech(x,y,n):
+    if value.board2[x][y]==9:
+        return
     if value.board2[x][y]==15-n:
         value.board2[x][y]=9
     else:

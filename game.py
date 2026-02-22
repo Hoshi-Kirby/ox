@@ -6,6 +6,7 @@ import value
 import random
 import skillcardfunc
 import eventfunc
+import evalufunc
 import soundplay
 import cpu
 pygame.init()
@@ -913,6 +914,13 @@ def game():
                 value.card_dx=[[0]*10,[0]*10]
                 value.card_dy=[[0]*10,[0]*10]
                 value.t=0
+                #メモのリセット
+                evalufunc.reach_cache.clear()
+                evalufunc.reach2_cache.clear()
+                evalufunc.reach_cache.clear()
+                evalufunc.reach2_cache.clear()
+                evalufunc.cardvalue_cache.clear()
+
                 soundplay.se_play(0)
         else:
             value.player = 2 if value.player == 1 else 1
@@ -1003,7 +1011,7 @@ def game():
         value.screen.blit(value.fade_surface, (0, 0))
 
     value.t+=1
-    if value.cput>0:value.cput-=1
+    if menumode==False and value.cput>0:value.cput-=1
     menut+=1
     pygame.display.update()
 
@@ -1454,7 +1462,7 @@ def skillbase():
 
     #それぞれ
     skillcardfunc.portal(skillcard)
-
+    print(value.cput)
 
     value.t+=1
     if value.cput>0:value.cput-=1

@@ -98,22 +98,55 @@ def check_reach2(p,x,y):
     value.board2[x][y] = hold
     return result
 
+reach_cache = {}
+reach2_cache = {}
+
 def reach(p):
-    spots=[]
+    key = (p, tuple(map(tuple, value.board)))
+    if key in reach_cache:
+        return reach_cache[key]
+    spots = []
     for i in range(5):
         for j in range(5):
-            if check_reach(p,i,j):
+            if check_reach(p, i, j):
                 spots.append((i, j))
-    
+    reach_cache[key] = spots
     return spots
+
 def reach2(p):
-    spots=[]
+    key = (p, tuple(map(tuple, value.board2)))
+    if key in reach2_cache:
+        return reach2_cache[key]
+    spots = []
     for i in range(2):
         for j in range(2):
-            if check_reach(p,i*2+1,j*2+1):
-                spots.append((i*2+1,j*2+1))
-    
+            if check_reach2(p, i*2+1, j*2+1):
+                spots.append((i*2+1, j*2+1))
+    reach2_cache[key] = spots
     return spots
+
+def reach_contribution(x, y, p):
+    if value.board[x][y] != p:
+        return 0
+    original = len(reach(p))
+    hold = value.board[x][y]
+    value.board[x][y] = 0
+    after = len(reach(p))
+    value.board[x][y] = hold
+
+    return original - after
+
+def reach_contribution2(x, y, p):
+    if value.board2[x][y] != p:
+        return 0
+    original = len(reach(p))
+    hold = value.board2[x][y]
+    value.board2[x][y] = 0
+    after = len(reach(p))
+    value.board2[x][y] = hold
+
+    return original - after
+
 
 def number(p):
     n=0
@@ -123,6 +156,24 @@ def number(p):
                 n+=1
             if value.board[i][j]==3-p:
                 n-=0.9
+            if value.board2[i][j]==p:
+                n+=1.5
+            if value.board2[i][j]==3-p:
+                n-=1.35
+    return n
+def number25(p):
+    n=0
+    for i in range(5):
+        for j in range(5):
+            if value.board[i][j]==p:
+                n+=1
+    return n
+def numberp(p):
+    n=0
+    for i in range(5):
+        for j in range(5):
+            if value.board[i][j]==p or value.board2[i][j]==p:
+                n+=1
     return n
 
 def fullhands(p):
@@ -139,29 +190,242 @@ def fullhands(p):
     return 0
 
 #カードの価値
-def cardvalue(s,p):
+CACHEABLE = {11,12,21,22,23,25,31,32,41,42,43,44}
+cardvalue_cache = {}
+C={
+    11: 2,
+    12: 2,
+    13: 1,
+    21: 2,
+    22: 2,
+    23: 2,
+    24: 1,
+    25: 2,
+    31: 1,
+    32: 1,
+    33: 1,
+    41: 1,
+    42: 2,
+    43: 2,
+    44: 1,
+    45: 0.5
+}
+def cardvalue(s, p):
+    # 盤面依存カードだけキャッシュする
+    if s in CACHEABLE:
+        key = (
+            s,
+            p,
+            tuple(map(tuple, value.board)),
+            tuple(map(tuple, value.board2)),
+        )
+        if key in cardvalue_cache:
+            return cardvalue_cache[key]
     if s==11:
-        c1=3
+        best = 0
+        for x in range(1,4):
+            for y in range(1,4):
+                if value.board[x][y] == 3-p or value.board[x][y] == 3:
+                    k = reach_contribution(x, y, 3-p)
+                    best = max(best, k)
+        r=best
+    elif s==12:
+        best = 0
+        for x in range(1,4):
+            for y in range(1,4):
+                destroyed = [(x,y),(x+1,y),(x-1,y),(x,y+1),(x,y-1)]
+                k=0
+                for (cx,cy) in destroyed:
+                    if value.board[cx][cy] == 3-p or value.board[cx][cy] == 3:
+                        k += reach_contribution(cx, cy, 3-p)
+                best = max(best, k)
+        r=best
+    elif s==13:#相手の手札価値の最大値
+        op = 3-p
+        if op == 1:
+            deck_id = value.decks
+            hand = [ value.deck[deck_id][ value.hands[i] ] for i in range(len(value.hands)) ]
+        else:
+            deck_id = value.decks2
+            hand = [ value.deck[deck_id][ value.hands2[i] ] for i in range(len(value.hands2)) ]
+        destroyable = [t for t in hand if t not in (13, 45)]
+        if len(destroyable) == 0:
+            r=0
+        else:
+            best = max(destroyable, key=lambda s: cardvalue(s, op))
+            r=cardvalue(best, op)
+
+    elif s==21:
+        sum=0
+        for x in range(5):
+            for y in range(5):
+                if 1 <= x <= 3 and 1 <= y <= 3:
+                    continue
+                if (x, y) in reach(p) and value.board[x][y]==0:
+                    sum+=1
+        r=sum
+    elif s==22:
+        r=len(reach2(p))
+    elif s==23:
         sum=0
         for x in range(1,4):
             for y in range(1,4):
-                if value.board[x][y]==3-p:
+                if (x, y) in reach(p) and value.board[x][y]==3-p:
                     sum+=1
-        r=(reach(3-p)+reach2(3-p))*c1+sum
+        r=sum
+    elif s==24:
+        r=1#評価関数そのまま
+    elif s==25:
+        sum=0
+        for x in range(1,4):
+            for y in range(1,4):
+                if (x, y) in reach(p) and value.board[x][y]==0:
+                    sum+=1
+        r=sum
+    elif s==31:
+        sum=0
+        for x in range(1,4):
+            for y in range(1,4):
+                if (x, y) in reach(3-p) and value.board[x][y]==0:
+                    sum=1
+        r=sum
+    elif s==32:
+        r=0
+        if len(reach(3-p))==1:r=1
+    elif s==33:
+        r=1#やらないかも。相手手札枚数+2のコストのカードの価値
+    elif s==41:
+        best = 0
+        for x in range(1,4):
+            for y in range(1,4):
+                if value.board[x][y] == 3-p or value.board[x][y] == 3:
+                    k = reach_contribution(x, y, 3-p)
+                    if (x, y) in reach(p) and value.board[x][y]==0 and numberp(p)>=3:
+                        k+=2
+                    best = max(best, k)
+        r=best
+    elif s==42:
+        sum=0
+        for x in range(1,4):
+            for y in range(1,4):
+                if (x, y) in reach(p) and value.board[x][y]==0 and numberp(p)>=3:
+                    sum+=1
+        r=sum
+    elif s==43:
+        sum=0
+        for x in range(1,4):
+            for y in range(1,4):
+                if (x, y) in reach(p) and value.board[x][y]==3-p:
+                    sum+=1
+        r=sum
+    elif s==44:
+        best=0
+        for x in range(0,5):
+            for y in range(0,5):
+                if value.board[x][y] == 3-p or value.board[x][y] == 3:
+                    k = reach_contribution(x, y, 3-p)
+                    if (x, y) in reach(p) and value.board[x][y]==3-p:
+                        k+=2
+                    best = max(best, k)
+        r=best
+    elif s==45:
+        before ,after= combo_value_greedy(p)
+        r=after - before
+
+    r = r * C[s]
+    if p==1:
+        if value.cost[s]+value.card_dcost[0]+1<len(value.hands):
+            r=r*1.2
+    else:
+        if value.cost[s]+value.card_dcost[1]+1<len(value.hands2):
+            r=r*1.2
+
+    if s in CACHEABLE:
+        cardvalue_cache[key] = r
+
+    if not isinstance(r, (int, float)):
+        print("BAD RETURN:", s, type(r), r)
+    
     return r
 
+#連続使用のカード価値の最大値
+def combo_value_greedy(p):
+    # p = 1 or 2
+    # 手札の skillnum を列挙
+    if p == 1:
+        deck_id = value.decks
+        hand = [ value.deck[deck_id][ value.hands[i] ] for i in range(len(value.hands)) ]
+    else:
+        deck_id = value.decks2
+        hand = [ value.deck[deck_id][ value.hands2[i] ] for i in range(len(value.hands2)) ]
+
+    # デフレ（skillnum=25）は未来行動に含めない
+    usable = [s for s in hand if s not in (13, 45)]
+
+    # 行動価値の高い順に並べる
+    usable.sort(key=lambda s: cardvalue(s, p), reverse=True)
+
+    # コストは手札枚数
+    remaining = len(hand)
+    total = 0
+    for s in usable:
+        c = value.cost[s]+value.card_dcost[p-1]+1 # skillnum→コスト
+        if c <= remaining:
+            total += cardvalue(s, p)
+            remaining -= c
+
+    # コストは手札枚数
+    remaining = len(hand)
+    total2 = 0
+    for s in usable:
+        c = value.cost[s]+value.card_dcost[p-1] # skillnum→コスト
+        if c <= remaining:
+            total2 += cardvalue(s, p)
+            remaining -= c
+
+    return [total,total2]
+
+#手札価値
+def handvalue():
+    deck1 = value.decks
+    hand1 = [ value.deck[deck1][ value.hands[i] ] for i in range(len(value.hands)) ]
+
+    deck2 = value.decks2
+    hand2 = [ value.deck[deck2][ value.hands2[i] ] for i in range(len(value.hands2)) ]
+
+    hv1 = sum(cardvalue(s, 1) for s in hand1)
+    hv2 = sum(cardvalue(s, 2) for s in hand2)
+
+    return [hv1, hv2]
 
 # 評価関数
-c1,c2,c3,c4= 2 , 1 , 0.1 , 2
+c1,c2,c3,c4,c5,c6= 1 , 2 , 0.5 , 0.2 , 2 , 0.1
 def evalufunc(p):
+    hv = handvalue()
+    my_hand = hv[p-1]
+    op_hand = hv[2-p]
+    combo= combo_value_greedy(p)[0]
     if p==1:
-        r=(len(reach(p))+len(reach2(p)))*c1
-        +number(p)*c2
-        +(len(value.hands)-len(value.hands2))*c3
-        -fullhands(1)*c4
+        lenhands=len(value.hands)
     else:
-        r=(len(reach(p))+len(reach2(p)))*c1+number(p)*c2+(len(value.hands2)-len(value.hands))*c3-fullhands(2)*c4
+        lenhands=len(value.hands2)
+
+    r=(number(p)*c1+(len(reach(p))+len(reach2(p)))*c2+(my_hand-op_hand)*c3+combo*c4-fullhands(p)*c5+lenhands*c6)
     return r
+
+#評価関数＝盤面の駒数ー相手の駒数+(自分のリーチ数-相手のリーチ数)×c1
+# +(自分の手札価値-相手の手札価値+このターンに使用したカードの価値)×c2
+# +(自分が現在連続で使用できるカードの価値の総和の最大値+このターンに使用したカードの価値)数×c3
+
+
+
+
+
+
+
+
+
+
 
 def bestmove(p):
     max=evalufunc(p)
@@ -172,6 +436,8 @@ def bestmove(p):
     copyblock=copy.deepcopy(value.block)
     copy404=copy.deepcopy(value.turn404)
     copydcost=copy.deepcopy(value.card_dcost)
+    copyskillstep=copy.deepcopy(value.skillstep)
+    copygamestep=copy.deepcopy(value.gamestep)
     x=0
     maxi=[-1]
     if p==2:
@@ -179,11 +445,12 @@ def bestmove(p):
             skillnum=value.deck[value.decks2][value.hands2[i]]
             if len(value.hands2)>value.cost[skillnum]+value.card_dcost[p-1]:
                 skillcardfunccpu.riset(i)
+                value.skillstep=0
                 value.gamestep=3
                 while value.gamestep!=1:
                     skillcardfunccpu.portal(skillnum)
                     value.t+=1
-                x=evalufunc(p)
+                x=evalufunc(p)+cardvalue(skillnum, p)*c3
                 if x > max:
                     max = x
                     maxi = [i]
@@ -196,6 +463,8 @@ def bestmove(p):
                 value.block=copy.deepcopy(copyblock)
                 value.turn404=copy.deepcopy(copy404)
                 value.card_dcost=copy.deepcopy(copydcost)
+    value.skillstep=copy.deepcopy(copyskillstep)
+    value.gamestep=copy.deepcopy(copygamestep)
                 
     return random.choice(maxi)
 
@@ -254,11 +523,15 @@ def bestmove3(p,sknum):
     copyblock=copy.deepcopy(value.block)
     copy404=copy.deepcopy(value.turn404)
     copydcost=copy.deepcopy(value.card_dcost)
+    copyskillstep=copy.deepcopy(value.skillstep)
+    copygamestep=copy.deepcopy(value.gamestep)
     x=0
     op=opset(p,sknum)
     if p==2:#opは選択できる[最小値,最大値]配列
         for cpui in itertools.product(*(range(op[i], op[i+1])for i in range(0, len(op), 2))):
             if can_use(sknum, p, cpui):
+                value.changes = []  # 変更ログ初期化
+                value.skillstep=1
                 skillcardfunccpu3.riset(0)
                 value.gamestep=3
                 while value.gamestep!=1:
@@ -271,12 +544,50 @@ def bestmove3(p,sknum):
                 elif x == max:
                     maxi.append(cpui)
 
-                value.board=copy.deepcopy(copyboard)
-                value.board2=copy.deepcopy(copyboard2)
-                value.hands=copy.deepcopy(copyhands)
-                value.hands2=copy.deepcopy(copyhands2)
-                value.block=copy.deepcopy(copyblock)
-                value.turn404=copy.deepcopy(copy404)
-                value.card_dcost=copy.deepcopy(copydcost)
+                
+                for change in reversed(value.changes):
+                    restore(change)
+
+                value.changes.clear()
+
+    value.board=copy.deepcopy(copyboard)
+    value.board2=copy.deepcopy(copyboard2)
+    value.hands=copy.deepcopy(copyhands)
+    value.hands2=copy.deepcopy(copyhands2)
+    value.block=copy.deepcopy(copyblock)
+    value.turn404=copy.deepcopy(copy404)
+    value.card_dcost=copy.deepcopy(copydcost)
+    value.skillstep=copy.deepcopy(copyskillstep)
+    value.gamestep=copy.deepcopy(copygamestep)
                 
     return random.choice(maxi)
+
+def restore(change):
+    kind = change[0]
+    if kind == "board":
+        _, x, y, old = change
+        value.board[x][y] = old
+    elif kind == "board2":
+        _, x, y, old = change
+        value.board2[x][y] = old
+    elif kind == "block":
+        _, x, old = change
+        value.block[x] = old
+    elif kind == "turn404":
+        _, x, y, old = change
+        value.turn404[x][y] = old
+    elif kind == "cost":
+        _, idx, old = change
+        value.card_dcost[idx] = old
+    elif kind == "hands":
+        _, old_list = change
+        value.hands = old_list
+    elif kind == "hands2":
+        _, old_list = change
+        value.hands2 = old_list
+    elif kind == "bridge_direct":
+        _, x, y, old = change
+        value.bridge_direct[x][y] = old
+    elif kind == "skillstep":
+        _, old = change
+        value.skillstep = old

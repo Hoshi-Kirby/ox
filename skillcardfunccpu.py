@@ -58,10 +58,13 @@ def riset(card_select_before):
     value.card_dy=[[0]*10,[0]*10]
 
 def bridgech(x,y,n):
+    if value.board2[x][y]==9:
+        return
     if value.board2[x][y]==15-n:
         value.board2[x][y]=9
     else:
         value.board2[x][y]=n
+        
 
 
 def portal(skillnum):
@@ -203,6 +206,7 @@ def skill13():
         
         if  value.play_number==0 and value.cput==0 and value.skillstep==1:
                 card_select_base=cpu.cpu13()
+                value.cput=0
                 value.skillstep=2
     if value.skillstep==2:
         #初回時
