@@ -204,7 +204,7 @@ def skill13():
             value.skillstep=0
             value.gamestep=1
         
-        if  value.play_number==0 and value.cput==0 and value.skillstep==1:
+        if  value.play_number==0 and value.cput==0 and len(value.hands)>0:
                 card_select_base=cpu.cpu13()
                 value.cput=0
                 value.skillstep=2

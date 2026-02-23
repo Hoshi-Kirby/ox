@@ -1,6 +1,7 @@
 import pygame
 import sys
 import math
+import copy
 
 import value
 import random
@@ -894,6 +895,7 @@ def game():
             #             value.player = 2 if value.player == 1 else 1
     # CPU
     if value.play_number==0 and value.player==2 and value.cput==0 and (not finish):
+        value.card_dcost_cor=copy.deepcopy(value.card_dcost)
         if len(value.hands2)>0:
             card_select=cpu.card_select()
         if len(value.hands2)>0 and card_select>=0:
@@ -949,6 +951,8 @@ def game():
         if not finish:
             finisht=value.t
             finish=True
+            if value.play_number==0:
+                evalufunc.learn_from_loss()
             soundplay.se_play(12)
         if value.t<finish_time+finisht:
             font_size=font_size_max
@@ -1462,7 +1466,6 @@ def skillbase():
 
     #それぞれ
     skillcardfunc.portal(skillcard)
-    print(value.cput)
 
     value.t+=1
     if value.cput>0:value.cput-=1

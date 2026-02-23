@@ -353,18 +353,20 @@ def skill13():
     global card_select_base
     if value.skillstep==1:
         direction(13,1)
-        if value.click==1:
-            if value.card_select_base[2-value.player]>=0:
-                card_select_base=value.card_select_base[2-value.player]
-                value.skillstep=2
-        if  value.play_number==0 and value.player==2 and value.cput==0:
-                card_select_base=cpu.cpu13()
-                value.skillstep=2
-        card_move_time=-1
-        
+        ch=1
         if value.player==1 and len(value.hands2)==0 or value.player==2 and len(value.hands)==0:
             value.skillstep=0
             value.gamestep=1
+            ch=0
+        
+        if value.click==1 and ch==1:
+            if value.card_select_base[2-value.player]>=0:
+                card_select_base=value.card_select_base[2-value.player]
+                value.skillstep=2
+        if  value.play_number==0 and value.player==2 and value.cput==0 and ch==1:
+                card_select_base=cpu.cpu13()
+                value.skillstep=2
+        card_move_time=-1
     if value.skillstep==2:
         #初回時
         if card_move_time==-1:

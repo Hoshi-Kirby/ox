@@ -158,11 +158,19 @@ def card_select():
 
 #カード使用　捨てるカード
 def card_select_base(card_s):
-    while True:
-        r=random.randint(0,len(value.hands2)-1)
-        if card_s[r]==0:
-            break
-    return r
+    candidates = []
+    # まだ捨てていないカードを全部調べる
+    for r in range(len(value.hands2)):
+        if card_s[r] == 0:
+            skillnum = value.deck[value.decks2][value.hands2[r]]
+            v = evalufunc.cardvalue(skillnum, 2)
+            candidates.append((v, r))
+
+    # 価値が低い順にソート
+    candidates.sort(key=lambda x: x[0])
+
+    # 一番価値が低いカードの index を返す
+    return candidates[0][1]
 
 def cpu11():
     r1,r2=evalufunc.bestmove3(2,11)

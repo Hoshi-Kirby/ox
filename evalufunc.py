@@ -335,10 +335,10 @@ def cardvalue(s, p):
     r = r * C[s]
     if p==1:
         if value.cost[s]+value.card_dcost[0]+1<len(value.hands):
-            r=r*1.2
+            r=r*1.5
     else:
         if value.cost[s]+value.card_dcost[1]+1<len(value.hands2):
-            r=r*1.2
+            r=r*1.5
 
     if s in CACHEABLE:
         cardvalue_cache[key] = r
@@ -385,6 +385,24 @@ def combo_value_greedy(p):
 
     return [total,total2]
 
+def combo_value_greedy_next(p):
+    if p == 1:
+        deck_id = value.decks
+        hand = [ value.deck[deck_id][ value.hands[i] ] for i in range(len(value.hands)) ]
+    else:
+        deck_id = value.decks2
+        hand = [ value.deck[deck_id][ value.hands2[i] ] for i in range(len(value.hands2)) ]
+    usable = [s for s in hand if s not in (13, 45)]
+    usable.sort(key=lambda s: cardvalue(s, p), reverse=True)
+    remaining = len(hand)+2
+    total = 0
+    for s in usable:
+        c = value.cost[s]+value.card_dcost[p-1]+1 # skillnum→コスト
+        if c <= remaining:
+            total += cardvalue(s, p)
+            remaining -= c
+    return total
+
 #手札価値
 def handvalue():
     deck1 = value.decks
@@ -399,8 +417,14 @@ def handvalue():
     return [hv1, hv2]
 
 # 評価関数
-c1,c2,c3,c4,c5,c6= 1 , 2 , 0.5 , 0.2 , 2 , 0.1
+k=0.2
 def evalufunc(p):
+    c1, c2, c3, c4, c5, c6 = value.c[value.decks]
+    rate = math.exp(k* value.card_dcost_cor[p-1])  # d<0 → rate<1, d>0 → rate>1, 常に正
+    c4 *= rate
+    c6 *= rate
+
+
     hv = handvalue()
     my_hand = hv[p-1]
     op_hand = hv[2-p]
@@ -413,9 +437,29 @@ def evalufunc(p):
     r=(number(p)*c1+(len(reach(p))+len(reach2(p)))*c2+(my_hand-op_hand)*c3+combo*c4-fullhands(p)*c5+lenhands*c6)
     return r
 
-#評価関数＝盤面の駒数ー相手の駒数+(自分のリーチ数-相手のリーチ数)×c1
-# +(自分の手札価値-相手の手札価値+このターンに使用したカードの価値)×c2
-# +(自分が現在連続で使用できるカードの価値の総和の最大値+このターンに使用したカードの価値)数×c3
+def evalufuncnext(p):
+    c1, c2, c3, c4, c5, c6 = value.c[value.decks]
+    rate = math.exp(k* value.card_dcost_cor[p-1])  # d<0 → rate<1, d>0 → rate>1, 常に正
+    c4 *= rate
+    c6 *= rate
+
+    hv = handvalue()
+    my_hand = hv[p-1]
+    op_hand = hv[2-p]
+    combo= combo_value_greedy_next(p)
+    if p==1:
+        lenhands=len(value.hands)
+    else:
+        lenhands=len(value.hands2)
+
+    r=(number(p)*c1+(len(reach(p))+len(reach2(p)))*c2+(my_hand-op_hand)*c3+combo*c4-fullhands(p)*c5+(lenhands+2-fullhands(p))*c6)
+    return r
+
+#評価関数＝(盤面の駒数ー相手の駒数)×c1+(自分のリーチ数-相手のリーチ数)×c2
+# +(自分の手札価値-相手の手札価値+このターンに使用したカードの価値)×c3
+# +(自分が現在連続で使用できるカードの価値の総和の最大値)×c4
+# -(手札が9枚なら1,手札が10枚なら2)×c5+自分の手札枚数×c6
+#[1 , 2 , 0.5 , 0.2 , 2 , 0.1]
 
 
 
@@ -428,7 +472,7 @@ def evalufunc(p):
 
 
 def bestmove(p):
-    max=evalufunc(p)
+    max=evalufuncnext(p)
     copyboard=copy.deepcopy(value.board)
     copyboard2=copy.deepcopy(value.board2)
     copyhands=copy.deepcopy(value.hands)
@@ -447,10 +491,11 @@ def bestmove(p):
                 skillcardfunccpu.riset(i)
                 value.skillstep=0
                 value.gamestep=3
+                cardvalueb=cardvalue(skillnum, p)*value.c[value.decks][3]
                 while value.gamestep!=1:
                     skillcardfunccpu.portal(skillnum)
                     value.t+=1
-                x=evalufunc(p)+cardvalue(skillnum, p)*c3
+                x=evalufunc(p)+cardvalueb
                 if x > max:
                     max = x
                     maxi = [i]
@@ -559,6 +604,9 @@ def bestmove3(p,sknum):
     value.card_dcost=copy.deepcopy(copydcost)
     value.skillstep=copy.deepcopy(copyskillstep)
     value.gamestep=copy.deepcopy(copygamestep)
+    if maxi==[]:
+        value.gamestep=1
+        return cpui
                 
     return random.choice(maxi)
 
@@ -591,3 +639,33 @@ def restore(change):
     elif kind == "skillstep":
         _, old = change
         value.skillstep = old
+
+def learn_from_loss():
+    p=2
+    deck = value.decks2 if p==2 else value.decks
+    c = value.c[deck]
+    c_default = value.c_default  # [1,2,0.5,0.2,2,0.1]
+
+    base_alpha = 0.01
+
+    hv = handvalue()
+    my_hand = hv[p-1]
+    op_hand = hv[2-p]
+
+    v = [
+        number(p),
+        len(reach(p)) + len(reach2(p)),
+        my_hand - op_hand,
+        combo_value_greedy(p)[0],
+        fullhands(p),
+        len(value.hands2) if p==2 else len(value.hands)
+    ]
+
+    for i in range(6):
+        # α を係数に応じて変動させる
+        alpha_i = base_alpha * (c_default[i] / (abs(c[i]) + 0.001))
+
+        # 学習
+        c[i] -= alpha_i * v[i]
+
+    print("更新後の係数:", c)
