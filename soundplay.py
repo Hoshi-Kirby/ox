@@ -57,6 +57,8 @@ se.append(pygame.mixer.Sound("sound/backcard1_syu.wav"))#23
 se[-1].set_volume(0.5)
 se.append(pygame.mixer.Sound("sound/backcard2_syusyu.wav"))#24
 se[-1].set_volume(0.7)
+se.append(pygame.mixer.Sound("sound/cannot_bi-n.wav"))#25
+se[-1].set_volume(0.7)
 
 def bgm_play(x):
     if value.bgm_track != x:

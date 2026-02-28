@@ -1023,6 +1023,9 @@ def change():
     global font_size
     global cardx_move
     global cardx_move2
+    global menut
+    global menu
+    global menumode
     global first
     global card_dcost_mode
     global collide_first
@@ -1163,11 +1166,50 @@ def change():
     #ターンエンド
     value.screen.blit(turnend,(turnendx,turnendy))
 
+    #メニューーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+    if menu:
+        value.fade_alpha += 20  # フェード速度（調整可）
+        if value.fade_alpha >= 150:
+            value.fade_alpha = 150
+            menumode=True
+
+        value.fade_surface.set_alpha(value.fade_alpha)
+        value.screen.blit(value.fade_surface, (0, 0))
+
+    if menumode:
+        menuui()
+
     #pygame
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and (not finish):
+            if menumode:
+                menumode=False
+                menu=False
+                match pause_ka:
+                    case 0:
+                        pass
+                        soundplay.se_play(4)
+                    case 1:
+                        value.fade_out=True
+                        value.fade_in=False
+                        value.nextstep=0
+                        soundplay.se_play(4)
+                    case 2:
+                        value.fade_out=True
+                        value.fade_in=False
+                        value.nextstep=-1
+                        soundplay.se_play(4)
+                    case _:
+                        menumode=True
+                        menu=True
+            else:
+                if menu_icon_rect.collidepoint(pygame.mouse.get_pos()):
+                    menu=True
+                    value.fade_alpha = 0
+                    soundplay.se_play(16)
 
     if len(value.hands)<6:
         value.spacing=120
@@ -1290,10 +1332,41 @@ def change():
         if value.t==20:value.card_dcost[2-value.player]=0
         card_dcost_mode=True
 
+    if value.fade_out:
+        value.fade_alpha += 20  # フェード速度（調整可）
+        if value.fade_alpha >= 255:
+            value.fade_alpha = 255
+            if value.nextstep==1:
+                value.step=5
+                value.fade_out = False
+                value.fade_in = True
+            if value.nextstep==-1:
+                value.step=1
+                value.fade_out = False
+                value.fade_in = True
+            if value.nextstep==0:
+                value.gamereset=True
+                value.fade_out = False
+                value.fade_in = True
 
-    if cardx_move>0:cardx_move-=1
-    if cardx_move2>0:cardx_move2-=1
-    value.t+=1
+        value.fade_surface.set_alpha(value.fade_alpha)
+        value.screen.blit(value.fade_surface, (0, 0))
+
+    if value.fade_in:
+        value.fade_alpha -= 20  # フェード速度（調整可）
+        if value.fade_alpha <= 0:
+            value.fade_alpha = 0
+
+            value.fade_in = False
+
+        value.fade_surface.set_alpha(value.fade_alpha)
+        value.screen.blit(value.fade_surface, (0, 0))
+
+
+    if menumode==False and cardx_move>0:cardx_move-=1
+    if menumode==False and cardx_move2>0:cardx_move2-=1
+    if menumode==False:value.t+=1
+    menut+=1
     pygame.display.update()
 
 
@@ -1311,6 +1384,9 @@ def change():
 def skillbase():
     global card_rect
     global card_select
+    global menut
+    global menu
+    global menumode
     global skillcard
     global collide_first
 
@@ -1447,7 +1523,32 @@ def skillbase():
             pygame.quit()
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            value.click=event.button
+            if menumode:
+                menumode=False
+                menu=False
+                match pause_ka:
+                    case 0:
+                        pass
+                        soundplay.se_play(4)
+                    case 1:
+                        value.fade_out=True
+                        value.fade_in=False
+                        value.nextstep=0
+                        soundplay.se_play(4)
+                    case 2:
+                        value.fade_out=True
+                        value.fade_in=False
+                        value.nextstep=-1
+                        soundplay.se_play(4)
+                    case _:
+                        menumode=True
+                        menu=True
+            else:
+                value.click=event.button
+                if menu_icon_rect.collidepoint(pygame.mouse.get_pos()):
+                    menu=True
+                    value.fade_alpha = 0
+                    soundplay.se_play(16)
 
 
 
@@ -1467,6 +1568,50 @@ def skillbase():
     #それぞれ
     skillcardfunc.portal(skillcard)
 
+    #めにゅーui
+    if menu:
+        value.fade_alpha += 20  # フェード速度（調整可）
+        if value.fade_alpha >= 150:
+            value.fade_alpha = 150
+            menumode=True
+
+        value.fade_surface.set_alpha(value.fade_alpha)
+        value.screen.blit(value.fade_surface, (0, 0))
+    
+    if menumode:
+        menuui()
+
+    if value.fade_out:
+        value.fade_alpha += 20  # フェード速度（調整可）
+        if value.fade_alpha >= 255:
+            value.fade_alpha = 255
+            if value.nextstep==1:
+                value.step=5
+                value.fade_out = False
+                value.fade_in = True
+            if value.nextstep==-1:
+                value.step=1
+                value.fade_out = False
+                value.fade_in = True
+            if value.nextstep==0:
+                value.gamereset=True
+                value.fade_out = False
+                value.fade_in = True
+
+        value.fade_surface.set_alpha(value.fade_alpha)
+        value.screen.blit(value.fade_surface, (0, 0))
+
+    if value.fade_in:
+        value.fade_alpha -= 20  # フェード速度（調整可）
+        if value.fade_alpha <= 0:
+            value.fade_alpha = 0
+
+            value.fade_in = False
+
+        value.fade_surface.set_alpha(value.fade_alpha)
+        value.screen.blit(value.fade_surface, (0, 0))
+
     value.t+=1
-    if value.cput>0:value.cput-=1
+    if menumode==False and value.cput>0:value.cput-=1
+    menut+=1
     pygame.display.update()
